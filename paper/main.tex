@@ -1,0 +1,51 @@
+\documentclass[journal]{IEEEtran}
+
+% --- IEEE Transactions template, double column, Times-equivalent font ---
+% Font: mathptmx (Nimbus Roman, metric-compatible with Times New Roman) --
+% the standard choice for IEEE LaTeX submissions under pdflatex; compiles
+% in Overleaf with no font upload/engine switch required. If literal Times
+% New Roman (the exact MS font file) is required, switch the compiler to
+% XeLaTeX/LuaLaTeX and replace this with \usepackage{fontspec} +
+% \setmainfont{Times New Roman} (needs the font file available to Overleaf).
+\usepackage{mathptmx}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}      % \toprule \midrule \bottomrule in generated tables
+\usepackage{array}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+% NOTE: do NOT load \usepackage{geometry} here -- IEEEtran manages its own
+% two-column page geometry; overriding margins conflicts with the class.
+
+\begin{document}
+
+\title{Which Pretraining Objective Survives the Modality Gap?\\
+       A Controlled Study of Skeleton-to-Inertial Transfer for Wearable Gesture Recognition}
+
+% TODO (verify before submission): affiliation/email inferred only from the
+% repo's git config (pt23@fsu.edu -> Florida State University) -- confirm
+% correct department/address and update the \thanks{} block below.
+\author{Prabin~Timilsina%
+  \thanks{P. Timilsina is with Florida State University. Email: pt23@fsu.edu. Manuscript in preparation.}}
+
+\maketitle
+
+\begin{abstract}
+\input{abstract_ieee}
+\end{abstract}
+
+\begin{IEEEkeywords}
+domain adaptation, gesture recognition, wearable sensors, transfer learning, self-supervised pretraining, calibration, human--machine systems, inertial measurement units
+\end{IEEEkeywords}
+
+% Section files are generated from paper/*.md by md2tex.py -- edit the .md and
+% re-run, or edit the .tex directly once in Overleaf.
+\input{intro}
+\input{method}
+\input{results}
+\input{discussion}
+\input{conclusion}
+
+\end{document}

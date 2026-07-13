@@ -1,0 +1,26 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Raw/processed data -- large, tracked via migration/ manifest instead
+DataCollection/
+Data_Processed/
+NTU-SkeletalData/
+external_data/
+*.npy
+*.skeleton
+
+# Experiment runtime logs
+*.log
+temp_outputs/
+
+# Generated experiment internals -- trained_models/ starts empty in this repo;
+# only summary CSVs/JSONs/PNGs from a run should ever be tracked, never these
+trained_models/**/Logs/
+trained_models/**/splits/
+trained_models/**/models/
+trained_models/**/*.pth
+trained_models/**/*.pt
+
+# Latent-space projection tables; keep figures only
+trained_models/UMAP_TargetLatents/*.csv

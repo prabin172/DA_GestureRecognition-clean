@@ -1,0 +1,485 @@
+\section{Results}
+
+\textit{This document is the \textbf{source of truth for all reported numbers.} Every value here traces to \texttt{RESEARCH\_LOG.md} \S{}B and the run directories under \texttt{trained\_models/}. Written 2026-07-05 (v2 preprocessing; 3-seed stats; Phase 1 McNemar/ECE/CKA; Phase 2 A2 subject-scaling; Phase 3 controller). Six results sections map to contributions C1--C6 plus external validity.}
+
+\subsection{R1 --- Objective utility is conditional on the gap (C1)}
+
+\textbf{Within domain}, objective choice is decisive. A linear probe on NTU features (30 epochs) spans \textasciitilde{}45 pp:
+
+\begin{center}
+\small
+\begin{tabular}{ll}
+\toprule
+init & NTU linear-probe acc \\
+\midrule
+supervised (supLP120) & 59.6\% \\
+hybrid (supMAE) & 59.2\% \\
+contrastive (supcon) & 55.7\% \\
+reconstruction (mae) & 22.6\% \\
+scratch & 14.8\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Reconstruction alone (mae) barely clears random init within domain --- it does not build discriminative features. The two label-supervised objectives (supLP120, supMAE) and the label-supervised contrastive objective (supcon, Khosla 2020 SupCon --- in-batch same-label positives) all cluster in the mid-to-high 50s; pure reconstruction is far behind.
+
+\textbf{Across the skeleton$\rightarrow$IMU gap}, the same choice compresses to a few points. LOSO-v2 final accuracy, per-(method,k) mean $\pm$ sd over 3 seeds (n=15):
+
+\begin{center}
+\small
+\begin{tabular}{llll}
+\toprule
+method & k=0 & k=1 & k=3 \\
+\midrule
+supMAE & 59.66 $\pm$ 6.68 & 83.28 $\pm$ 6.41 & 91.24 $\pm$ 4.43 \\
+supcon & 58.08 $\pm$ 7.24 & 82.34 $\pm$ 5.18 & 91.41 $\pm$ 4.75 \\
+supLP120 & 58.41 $\pm$ 7.43 & 80.97 $\pm$ 4.91 & 90.81 $\pm$ 4.19 \\
+scratch & 57.15 $\pm$ 6.84 & 82.31 $\pm$ 6.55 & 89.39 $\pm$ 4.90 \\
+mae & 52.90 $\pm$ 5.71 & 79.47 $\pm$ 5.45 & 88.05 $\pm$ 5.33 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The full method spread at k=1 is \textasciitilde{}3.8 pp (83.3 $-$ 79.5), vs the \textasciitilde{}45 pp within-domain spread. The gap, not the objective, sets how much objective choice matters. supcon lands close to scratch on raw accuracy (paired $\Delta$: +0.9/+0.0/+2.0 pp at k=0/1/3, all n.s. or marginal, p$\ge$.07 --- see R2) --- a fifth objective, a fifth accuracy-is-a-wash story. All methods reach 94--98\% by k$\ge$5 (ceiling); k$\in$\{0,1,3\} is the discriminating regime.
+
+\subsection{R2 --- A seed-stable negative-transfer case that inverts the field (C2)}
+
+The load-bearing correction from single-seed to multi-seed: the single-seed "+4.1 pp @ k=1 supMAE" delta was seed-42-specific (seed-by-seed supMAE$-$scratch @ k=1: +4.13 / $-$1.77 / +0.56; pooled +0.97, n.s.). What survives pooling is not a supervised/contrastive collapse but a \textbf{reconstruction collapse}.
+
+\textbf{Paired $\Delta$ vs scratch} (mean pp, [95\% CI], paired-t p), n=15:
+
+\begin{center}
+\small
+\begin{tabular}{llll}
+\toprule
+contrast & k=0 & k=1 & k=3 \\
+\midrule
+supMAE $-$ scratch & +2.52 [$-$0.46, +5.49] p=.091 & +0.97 [$-$1.78, +3.72] p=.461 & +1.85 [$-$0.03, +3.74] p=.054 \\
+supLP120 $-$ scratch & +1.27 p=.494 & $-$1.34 p=.375 & +1.42 p=.264 \\
+supcon $-$ scratch & +0.93 [$-$3.92, +5.79] p=.686 & +0.03 [$-$2.85, +2.91] p=.982 & +2.02 [$-$0.23, +4.27] p=.074 \\
+\textbf{mae $-$ scratch} & \textbf{$-$4.24 [$-$6.78, $-$1.71] p=.003} & \textbf{$-$2.84 [$-$4.43, $-$1.25] p=.002} & $-$1.34 p=.201 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Clip-level McNemar} (pooled 3 seeds; net = prior-only-correct $-$ scratch-only-correct):
+
+\begin{table*}[!t]
+\centering
+\caption{R2 --- A seed-stable negative-transfer case that inverts the field (C2)}
+\small
+\begin{tabular}{lllllll}
+\toprule
+prior & k & n\_pairs & b (scratch-only) & c (prior-only) & net & p \\
+\midrule
+supMAE & 0 & 7974 & 480 & 680 & \textbf{+200} & 0.0 \\
+supMAE & 1 & 7644 & 342 & 418 & +76 & .0065 \\
+supMAE & 3 & 6984 & 210 & 341 & \textbf{+131} & 0.0 \\
+supLP120 & 0 & 7974 & 786 & 895 & +109 & .0084 \\
+supLP120 & 1 & 7644 & 591 & 494 & $-$97 & .0035 \\
+supLP120 & 3 & 6984 & 296 & 400 & +104 & 9e-05 \\
+supcon & 0 & 7974 & 740 & 825 & +85 & .034 \\
+supcon & 1 & 7644 & 487 & 492 & +5 & .898 (n.s.) \\
+supcon & 3 & 6984 & 265 & 409 & \textbf{+144} & 0.0 \\
+\textbf{mae} & 0 & 7974 & 789 & 455 & \textbf{$-$334} & 0.0 \\
+\textbf{mae} & 1 & 7644 & 593 & 376 & \textbf{$-$217} & 0.0 \\
+\textbf{mae} & 3 & 6984 & 385 & 293 & \textbf{$-$92} & .00047 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\textbf{mae is significant negative transfer at every k} (all p<.001) --- it flips \textit{more} clips wrong than right relative to random init. supMAE is significant positive at every k. supLP120 and supcon are both mixed at the clip level (positive k0/k3, a null/small-negative dip at k1) --- the two label-aware objectives share this signature. This inverts the field's working assumption that reconstruction/self-supervision is the \textit{safe} prior under large gaps: here the pure-reconstruction prior is the one that hurts, because it never encodes discriminative structure (R1) and the fine-tune from that init lands in a worse basin than from random.
+
+\subsection{R3 --- Mechanism: gap is necessary-not-sufficient; CKA orders objectives (C3)}
+
+\textbf{MMD does not track transfer.} Squared-MMD between NTU and Xsens-v2 features (supMAE encoder) is 0.0092 under v2 (below the local baseline 0.0109 and far below swing 0.0322), confirming v2 closes the gap --- but MMD ordering across encoders does not match transfer ordering (contrastive had near-lowest MMD yet worst transfer under the earlier preprocessing; mae has higher MMD than supervised yet similar low-k accuracy).
+
+\textbf{CKA orders the objectives cleanly.} Linear CKA between NTU and Xsens-v2 activations, per encoder $\times$ layer:
+
+\begin{table*}[!t]
+\centering
+\caption{R3 --- Mechanism: gap is necessary-not-sufficient; CKA orders objectives (C3)}
+\small
+\begin{tabular}{lllll}
+\toprule
+encoder & proj & L0 & L1 & L2 \\
+\midrule
+supLP120 & 0.0038 & 0.0133 & 0.0139 & \textbf{0.0149} \\
+supcon & 0.0039 & 0.0233 & 0.0231 & 0.0257 \\
+supMAE & 0.0029 & 0.0043 & 0.0047 & 0.0048 \\
+mae & 0.0029 & 0.0036 & 0.0036 & 0.0035 \\
+scratch & 0.0027 & 0.0027 & 0.0027 & 0.0027 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Two facts, both important: (i) \textbf{absolute CKA is small for all} (<0.02--0.03) --- the cross-modal gap is large even after v2, so we do not over-claim on magnitude; (ii) the \textbf{ordering is clean and monotone with depth} for the two label-aware objectives --- supLP120 and supcon both align well above supMAE/mae/scratch and \textit{grow} with depth, while scratch is flat. supcon's raw CKA magnitude is numerically the \textit{highest} of all five here (0.0257 at L2, edging out supLP120's 0.0149) despite both being label-supervised objectives, yet supcon's cross-domain accuracy (R1) is a wash vs scratch (unlike supLP120, which is at least mixed-positive) --- the sharpest instance in the paper of alignment magnitude \textit{not} predicting accuracy. The best-aligned encoder (supcon, numerically; supLP120 historically) is not the best-transferring on accuracy (supMAE is), and the reconstruction encoder has higher CKA than scratch but negative transfer. \textbf{Conclusion:} representation alignment is a necessary context but not a sufficient predictor; the objective's discriminative inductive bias governs transfer. This is the mechanism the MMD-only view could not supply.
+
+\textbf{Extending this to the gap axis itself:} we also measured layer-wise CKA between NTU and each of the four targets used elsewhere in the paper (Xsens-v2, CZU skeleton, CZU IMU orientation quats, UTD skeleton) to test whether CKA orders them by our claimed small/middle/large gap (see R6e). It does not, and is inconsistent even within the claimed small-gap pair: on the supLP120 encoder, mean L0--L2 linear CKA is utd\_skeleton 0.0327 > xsens\_v2 0.0290 > czu\_skeleton 0.0267 > czu\_imu\_quat 0.0260 --- czu\_skeleton (claimed small gap, same as utd\_skeleton) ranks \textit{below} both the claimed-middle and claimed-large targets. We report this as a further instance of necessary-not-sufficient rather than force a fit: CKA does not reliably track gap \textit{width} across independently collected datasets. Full table in \texttt{wiki/concepts/domain-gap-metrics.md}.
+
+\textbf{A raw, encoder-free measurement recovers the ordering CKA missed.} Both CKA and the encoder-space MMD above are computed \textit{inside a trained encoder's feature space} --- confounded by the pretraining objective, so they measure how different two datasets look \textit{to that encoder}, not how different the datasets are themselves. We therefore also measured domain gap directly on a hand-crafted, model-free feature (mean/std/var/skew/kurtosis over the 68 flattened LRQ channels --- the same feature used for the CRC published-baseline reproductions in R6/R6d, zero pretraining involved), computing squared-MMD (RBF kernel, median-heuristic bandwidth --- this fixes the fixed-sigma scale confound noted above) and Frechet distance (Gaussian closed form on a 50-component PCA) between NTU and each target, n=1000/side (n=861 for UTD, its full pool), seed 0:
+
+\begin{center}
+\small
+\begin{tabular}{llll}
+\toprule
+target & gap (claimed) & MMD\textsuperscript{2} & Frechet \\
+\midrule
+czu\_skeleton & small & \textbf{0.0560} & \textbf{176.8} \\
+utd\_skeleton & small & \textbf{0.0960} & \textbf{202.1} \\
+xsens\_v2 & middle & \textbf{0.1218} & \textbf{281.9} \\
+czu\_imu\_quat & large & \textbf{0.2049} & \textbf{393.8} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Both metrics confirm the claimed small<small<middle<large gap ordering exactly and monotonically} --- the opposite outcome from the CKA-per-target result immediately above. Removing the pretrained encoder from the measurement, rather than adding one, is what recovers the ordering: CKA measures how well a \textit{specific trained encoder} aligns two domains (task- and objective-dependent, hence the necessary-not-sufficient finding above), while raw MMD/Frechet measure how different the \textit{datasets themselves} are before any model touches them. The two results are complementary, not contradictory: the objective's discriminative inductive bias governs whether a given alignment \textit{transfers} (CKA's lesson), while the raw distributional gap between datasets follows the intuitive device/modality ordering (this result) --- CKA's failure to track it is itself evidence that encoder alignment and raw distributional distance are different quantities. This gives the R6e gap ordering a measured, encoder-independent basis it previously lacked. Full table in \texttt{wiki/concepts/domain-gap-metrics.md}, script \texttt{temp\_raw\_domain\_gap.py}.
+
+\subsection{R4 --- The prior's real value: calibration and data-efficiency (C4$\rightarrow$A2, C5)}
+
+The accuracy spread is compressed, but the prior still pays off in three deployment-relevant ways.
+
+\textbf{(a) Calibration.} Temperature-scaled ECE, per method$\times$k:
+
+\begin{center}
+\small
+\begin{tabular}{llll}
+\toprule
+method & k=0 & k=1 & k=3 \\
+\midrule
+supLP120 & \textbf{0.0258} & \textbf{0.0306} & \textbf{0.0350} \\
+supcon & 0.0339 & 0.0410 & 0.0410 \\
+supMAE & 0.0653 & 0.0424 & 0.0396 \\
+scratch & 0.0676 & 0.0494 & 0.0396 \\
+mae & 0.0676 & 0.0667 & 0.0545 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+supLP120 is best-calibrated at every k; supcon is a clear second, ahead of supMAE/scratch/mae at every k; mae worst at k=1/3. The two label-supervised objectives (supLP120, supcon) lead calibration; the two without direct softmax-style label supervision at the pooled embedding (supMAE, mae) trail. (Raw ECE at k=0 is large for all, 0.25--0.34, T$\approx$2.5--3.5 --- everyone is overconfident before temperature scaling.)
+
+\textbf{(b) Calibration efficiency (AUC-30 = mean eval-acc over the first 30 calibration epochs) and convergence speed.} Paired $\Delta$ vs scratch:
+
+\begin{itemize}
+  \item AUC-30: supMAE k3 \textbf{+2.04 [+0.26, +3.81] p=.028}; supLP120 k3 \textbf{+3.74 [+1.03, +6.46] p=.010}; supcon k3 \textbf{+4.18 [+1.44, +6.93] p=.006} (k1 +1.89, n.s.); mae k1 $-$4.37 p<.001, k3 $-$3.83 p<.001.
+  \item Convergence (first epoch $\ge$90\% of final; lower=faster): supLP120 k1 \textbf{$-$4.00 [$-$6.97, $-$1.03] p=.012}, k3 \textbf{$-$3.40 [$-$5.07, $-$1.73] p=.001}; supcon k3 \textbf{$-$3.53 [$-$5.64, $-$1.43] p=.003} (k1 $-$2.47, n.s.); mae \textit{slower} (+2.93 p$\le$.034); supMAE $\approx$ scratch.
+\end{itemize}
+
+The prior converges faster and integrates the few calibration shots more efficiently even where the endpoint accuracy is a wash --- and this now holds for \textbf{two} label-aware objectives (supLP120, supcon), not one, strengthening R4 from a single-objective observation to a pattern tied to label-awareness rather than one specific pretraining recipe.
+
+\textbf{(c) Subject-count scaling (A2) --- how long the prior stays useful.} Prior benefit vs scratch (pp), by number of fine-tuning subjects N $\times$ k, \textbf{pooled over 3 seeds (42/43/44), n=15 per cell}:
+
+\begin{table*}[!t]
+\centering
+\caption{R4 --- The prior's real value: calibration and data-efficiency (C4$\rightarrow$A2, C5)}
+\small
+\begin{tabular}{lllllll}
+\toprule
+prior & k & N=0 & N=1 & N=2 & N=3 & N=4 \\
+\midrule
+supLP120 & 1 & +6.96 & \textbf{+18.43} & +3.64 & $-$0.37 & $-$1.34 \\
+supLP120 & 3 & +18.47 & \textbf{+27.46} & +7.15 & +2.41 & +1.42 \\
+supMAE & 1 & +3.35 & +6.42 & +3.48 & +2.02 & +0.97 \\
+supMAE & 3 & +9.18 & +9.40 & +2.13 & +2.15 & +1.85 \\
+mae & 1 & +2.42 & +0.44 & $-$1.80 & $-$2.44 & $-$2.84 \\
+mae & 3 & +5.29 & +2.74 & $-$2.04 & $-$0.76 & $-$1.34 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Paired-t (n=15): supLP120 $-$ scratch is significant at every (N,k) shown (N=0 k=1/k=3 and N=1 k=1/k=3, all \textbf{p<.0001}); supMAE $-$ scratch likewise significant (N=0 k=1 p=.004, N=1 k=1 p=.0003, both k=3 p<.0001); mae $-$ scratch turns significantly negative by N=4 at k=1 (p=.0018), n.s. at N=1--3.
+
+The prior's benefit \textbf{peaks at N=0/1} (supLP120 \textbf{+27.5 pp @ k=3, N=1}, up from the single-seed +26.9) and \textbf{washes to $\approx$1--1.4 pp by N=4} --- a clean, now statistically confirmed deployment lever: the pretrained prior is worth roughly a full retraining set when 0--1 users are enrolled and is nearly redundant once \textasciitilde{}4 are. mae is negative for N$\ge$2 at k=1, significantly so by N=4 (p=.0018) --- reinforcing R2. Pooling \textbf{resolves} rather than softens the earlier single-seed caveat: the k=1, N=1 spike survives at all three seeds individually (+15.5 / +21.2 / +18.6 pp) and is not a seed artifact.
+
+\textbf{Caveat established in R6c below: this cold-start lever is itself target-representation-contingent.} Repeating this exact sweep on CZU's strong (raw-signal) target finds no N at which either prior beats scratch --- both are significantly \textit{worse} at N=0, k=1. Read R4c and R6c's cold-start extension together, not R4c alone.
+
+\subsection{R5 --- From recognition to control (C6)}
+
+The abstract controller (12-step pick-place mission, held-out posteriors, confidence-reject safety layer, asymmetric cost) turns the compressed accuracy differences into task-level ones. The command vocabulary (grasp, release, ...) is a hypothetical one, not a recorded gesture set --- real gestures are relabeled onto it by recognition reliability, not semantics (Methods \S{}8). \textbf{Illustratively}, for a reliability-ordered command vocabulary at k=1, ungated, mission-success is supMAE 0.967 / scratch 0.905 / supLP120 0.861 / mae 0.754 --- a \textasciitilde{}4 pp recognition gap (mae vs supMAE) becomes a \textbf{21 pp mission-success gap}, the concrete form of "a few accuracy points matter." But a controller has design knobs (command vocabulary, error-cost model, operating threshold), so rather than rest on one configuration we show the method ordering is \textit{invariant to the knobs} via three robustness locks (Methods \S{}8.1). Magnitudes vary; the conclusions do not.
+
+\textbf{Lock 1 --- randomized command vocabulary (kills "you cherry-picked the gestures").} We resample the 7-gesture$\rightarrow$primitive mapping 120 times at random and report the distribution of mission success. Mean hard task-success across the 120 vocabularies (supcon added 2026-07-10, exact re-run --- this table's original 4 columns reproduce the locked run to 3 decimals, since Lock 1's per-vocab RNG is independent of which other methods are in the pool):
+
+\begin{table*}[!t]
+\centering
+\caption{R5 --- From recognition to control (C6)}
+\small
+\begin{tabular}{llllll}
+\toprule
+condition & scratch & mae & supMAE & supLP120 & supcon \\
+\midrule
+k=1, $\tau$=0 (ungated) & 0.516 & \textbf{0.452} & 0.530 & 0.479 & 0.506 \\
+k=1, $\tau$=0.9 (gated) & 0.714 & \textbf{0.655} & 0.724 & 0.700 & 0.722 \\
+k=3, $\tau$=0 & 0.663 & \textbf{0.634} & 0.710 & 0.716 & 0.717 \\
+k=3, $\tau$=0.9 & 0.830 & \textbf{0.774} & 0.847 & 0.879 & \textbf{0.880} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\textbf{mae is the worst-compounding init in all four conditions, now against five objectives, not four} --- it beats supcon in only 22\% of vocabularies at k=1 $\tau$=0 (vs 12\% for supMAE, 34\% for supLP120). The negative transfer of R2 survives at the task level regardless of which gestures are commands, and regardless of which other objectives are in the comparison set. supMAE is $\ge$ scratch in every condition; supLP120 leads at k=3 but dips just below scratch at k=1 ungated (see the honest finding below); supcon tracks supLP120 closely and is the single best method at k=3, $\tau$=0.9.
+
+\textbf{Lock 2 --- critical-cost sweep (kills "the harsh instant-fail rule drives it").} Replacing binary mission-failure with a recoverable critical penalty C\_crit and sweeping C\_crit $\in$ \{2, 5, 10, 20, 50, $\infty$\}, \textbf{mae has the highest mean mission cost at every C\_crit at k=1} (e.g. C\_crit=20: mae 20.8 vs supMAE 15.6 vs scratch 17.2), and supMAE the lowest for C\_crit$\ge$5. The mae-worst ordering is independent of how catastrophic critical errors are made.
+
+\textbf{Lock 3 --- iso-safety operating point (kills "you tuned $\tau$ to win").} Rather than pick $\tau$, we fix a false-activation \textit{budget} and find the smallest $\tau$ meeting it per method (deployment-standard, tuning-free). At a \textbf{1\% budget, k=1}:
+
+\begin{center}
+\small
+\begin{tabular}{llll}
+\toprule
+method & $\tau$* & task-success & mean cost \\
+\midrule
+supLP120 & \textbf{0.90} & 0.953 & \textbf{16.69} \\
+mae & 0.95 & 0.967 & 19.09 \\
+supMAE & 0.99 & 0.872 & 20.54 \\
+scratch & 0.99 & 0.810 & 20.82 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The best-calibrated init (supLP120, R4a) reaches the safety budget at the \textbf{lowest threshold} (0.90 vs 0.95--0.99), so it rejects less and completes \textasciitilde{}13--20\% faster; at the strict \textbf{0.5\% budget it is the only init that meets the spec with strong success} ($\tau$*=0.97, 0.877) while scratch and supMAE cannot reach it at all at k=1. This is the calibration payoff made operational: trustworthy confidence buys throughput at a fixed safety level.
+
+\textbf{Honest finding (a design principle, not a caveat).} supLP120 carries a \textit{confident false-critical-activation} mode: it occasionally maps other gestures onto the highly-separable anchors used for grasp/release with high confidence, so on the \textbf{ungated} metric it dips below scratch at k=1 and, at extreme C\_crit, can be penalized at k=3. This is precisely why the deployment-correct framing is iso-safety (set $\tau$ to a safety budget) together with the design guard of assigning safety-critical commands to the most-separable gestures --- under that correct framing, calibration wins. The naive ungated metric \textit{understates} the value of calibration.
+
+Net: across 120 random vocabularies, two outcome models, a 6-point critical-cost sweep, and a tuning-free operating point, \textbf{mae compounds worst and calibration governs the safety/throughput trade} --- the two claims that matter, locked.
+
+\textbf{Extending to supcon (Locks 2/3) --- a discovered quirk, reported rather than smoothed over.} Adding supcon required re-running Locks 2/3, and doing so surfaced a script coupling we hadn't noticed: the "illustrative" 12-step-mission vocabulary (\texttt{reliability\_ordered\_vocab}) is ranked by pooled recall over \textit{every} method present in the loaded posterior pool, not per-method --- so adding supcon's posteriors to the pool silently shifted which 7 gestures get assigned to the mission's primitives for Locks 2/3 (Lock 1's randomized vocabularies are unaffected, which is why that table reproduces exactly). The original locked numbers for scratch/mae/supMAE/supLP120 (Lock 2/3 tables above) are untouched --- they live in a separate, never-overwritten output directory --- but supcon's own Lock 2/3 numbers were computed under this re-derived vocabulary and are not numerically poolable with the tables above. Reported on their own terms, the conclusions replicate: at C\_crit=20, k=1, mean cost under the re-derived vocabulary is supLP120 17.3 < supcon 17.6 < supMAE 16.2 (supMAE lowest here) < scratch 18.0 < \textbf{mae 21.7 (highest, as at every C\_crit swept, 2 through $\infty$)}; at the 1\% false-activation budget, k=1, supLP120 again reaches the safety threshold at the lowest $\tau$* (0.85) and lowest mean cost (16.6), with supcon second-cheapest (19.0) ahead of scratch/supMAE/mae. \textbf{mae compounds worst and calibration governs safety/throughput hold under an independently-derived vocabulary too} --- an adventitious fourth robustness check, not planned as one. (Numbers: \texttt{trained\_models/Phase3-controller/robust-supcon/}; do not merge into the locked \texttt{robust/} figures above.)
+
+\subsection{R6 --- External validity (CZU-MHAD skeleton$\rightarrow$skeleton)}
+
+Same objectives and LOSO protocol on CZU-MHAD's skeleton modality (5 subjects, 22 actions). Final accuracy, mean over 5 subjects (single seed, to match the CRC same-splits head-to-head below; pooled 3-seed robustness follows):
+
+\begin{table*}[!t]
+\centering
+\caption{R6 --- External validity (CZU-MHAD skeleton$\rightarrow$skeleton)}
+\small
+\begin{tabular}{lllll}
+\toprule
+k & scratch & mae & supMAE & supLP120 \\
+\midrule
+0 (zero-shot) & 84.9 & 87.9 & 85.5 & \textbf{93.1} \\
+1 & 90.1 & 90.0 & 91.2 & 93.1 \\
+3 & 91.9 & 93.8 & 93.6 & 93.8 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Paired $\Delta$ vs scratch: \textbf{supLP120 zero-shot +8.3 pp (p=.07)}; supMAE modestly positive at all k (n.s.). Critically, **mae is \textit{positive} here\textbf{ (+3.1 @ k=0), unlike the significant negative transfer it shows on NTU$\rightarrow$Xsens IMU. The mae-hurts signature does }not** reproduce on a same-modality (skeleton$\rightarrow$skeleton, small-gap) target --- evidence that the negative transfer is specific to the \textit{cross-modal} gap, which is exactly the mechanism R2/R3 predict. This is skeleton$\rightarrow$skeleton, not the IMU gap; the true cross-modal replication on CZU's inertial modality is reported next (R6b).
+
+\textbf{Multi-seed robustness (3 seeds 42/43/44, pooled n=15).} The zero-shot supLP120 win survives pooling and \textit{sharpens}: \textbf{supLP120 $-$ scratch = +7.2 pp at k=0, now clearly significant (paired-t p=.0004)} --- the single-seed p=.07 was underpowered, not fragile. supMAE also becomes significant-positive at k=0 (+2.2 pp, p=.048) and k=3 (+2.2 pp, p=.014); mae stays positive-but-n.s. at every k (the same-modality "reconstruction does not hurt" signature holds under pooling). The small-gap "supervised prior wins" claim is thus seed-stable, and is independently replicated on a second public dataset (UTD-MHAD, R6d).
+
+\textbf{supcon (3 seeds, pooled n=15) wins even bigger.} supcon $-$ scratch = \textbf{+7.0 / +4.8 / +4.4 pp at k=0/1/3, all significant (p<.001)} --- a larger and more consistent margin than supLP120's (which is significant only at k=0/k=3). supcon > supLP120 in 34/43 folds (sign p=.0002, mean$\Delta$ +1.4 pp): on this dataset the \textit{contrastive} label-aware objective edges out the \textit{softmax} label-aware objective, but both dominate scratch by a wide margin. The small-gap story is therefore not "supervised classification specifically wins" but \textbf{"any objective with direct label supervision at the pooled-embedding level wins when the gap is small"} --- sharpened by a fifth objective, not just replicated by a second dataset.
+
+\textbf{Published-baseline comparison.} The CZU-MHAD dataset paper (Chao et al., 2022) reports a Collaborative Representation Classifier (CRC) on statistical-moment features; its protocol-comparable \textit{cross-subject} skeleton accuracy is \textasciitilde{}75.5\% (its closed, subject-mixed test is not comparable to LOSO). We reproduce that baseline family --- mean/std/var/skew/kurtosis features + CRC ($\lambda$=1e-4) --- on the \textbf{byte-identical LOSO k-shot splits} used by our learned recognizer, giving a same-splits head-to-head (mean acc over 5 folds):
+
+\begin{table*}[!t]
+\centering
+\caption{R6 --- External validity (CZU-MHAD skeleton$\rightarrow$skeleton)}
+\small
+\begin{tabular}{llllll}
+\toprule
+k & CRC baseline & scratch & mae & supMAE & supLP120 \\
+\midrule
+0 & 84.81 & 84.87 & 87.94 & 85.50 & \textbf{93.14} \\
+1 & 89.31 & 90.15 & 89.98 & 91.19 & \textbf{93.08} \\
+3 & 90.82 & 91.90 & 93.77 & 93.62 & \textbf{93.85} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Two things stand out. (i) \textbf{The from-scratch learned encoder is statistically level with the hand-crafted CRC baseline} (84.87 vs 84.81 at k=0) --- architecture alone is not the advantage. (ii) \textbf{Only the NTU-pretrained prior opens a clear, consistent margin}: supLP120 $-$ CRC = +8.3 / +3.8 / +3.0 pp at k=0/1/3. On an independent public dataset the value is carried by the \textit{transferred prior}, not the recognizer, corroborating R4. (Our CRC reproduction, 84.8\%, exceeds the paper's published cross-subject skeleton \textasciitilde{}75.5\% --- expected given our LRQ representation and 4-subject LOSO dictionary vs their raw-position T5--T7 splits; we report it as a same-splits reproduction, not a claim about their exact pipeline.)
+
+\subsubsection{R6b --- Cross-modal external validity (CZU-MHAD skeleton$\rightarrow$inertial)}
+
+The true cross-modal replication: NTU skeleton prior $\rightarrow$ CZU \textbf{wearable-IMU} target (10 body-worn 6-axis sensors, \textbf{no magnetometer}), an independent public instance of the skeleton$\rightarrow$inertial gap. To feed the skeleton-pretrained encoder, the raw inertial is reduced to 17-segment orientation quaternions via Madgwick AHRS (yaw drifts without magnetometer) --- an orientation-only representation shared by every method. Final accuracy, mean over LOSO folds (pooled 3 seeds 42/43/44 $\times$ 5 subjects = 45 folds; CRC column single-seed, raw accel+gyro):
+
+\begin{table*}[!t]
+\centering
+\caption{R6b --- Cross-modal external validity (CZU-MHAD skeleton$\rightarrow$inertial)}
+\small
+\begin{tabular}{llllll}
+\toprule
+k & scratch & mae & supMAE & supLP120 & CRC (raw accel+gyro) \\
+\midrule
+0 & 55.7 & 54.9 & \textbf{57.6} & 53.6 & 86.8 \\
+1 & 54.3 & 53.0 & \textbf{54.2} & 51.9 & 90.8 \\
+3 & 58.3 & 57.4 & \textbf{59.6} & 56.0 & 94.4 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\textbf{Under an impoverished (orientation-only) target encoding, the supervised prior stops helping and starts hurting, while reconstruction-augmentation neutralizes the damage.} On the same-modality skeleton target (R6) the pure-supervised prior supLP120 dominated (+7.2 pp zero-shot, pooled p=.0004); across the modality boundary \textbf{supLP120 becomes the worst prior --- below scratch at every k} (supLP120 $-$ scratch = $-$2.3 pp mean; paired-t k=0 $-$2.1 pp p=.044, k=3 $-$2.3 pp p=.056). What multi-seed pooling makes precise is \textit{which} contrast is the real effect. The robust, load-bearing result is the \textbf{prior-vs-prior contrast: supMAE > supLP120 in 36/44 folds (sign p<.0001)} --- adding reconstruction to the supervised objective rescues transfer across the modality gap. What does \textbf{not} survive pooling is the claim that supMAE \textit{beats scratch}: pooled, supMAE > scratch is only \textbf{25/42 folds (sign p=.28)}, and paired-t clears significance solely at k=0 (+1.9 pp, p=.034). The single-seed "+3 pp reconstruction benefit" (12/15, p=.035) was a seed-42 artifact. The honest reading is therefore: supMAE lands supMAE $\approx$ scratch (not above it), and the mechanism is \textbf{supervised-specific negative transfer with reconstruction as the antidote} --- consistent with R2/R3 (the supervised-only prior encodes skeleton-specific class boundaries that misalign on IMU-derived orientations; MAE reconstruction regularizes back toward modality-transferable low-level kinematics and cancels the loss). R6c below shows even that antidote is scoped to the weak encoding.
+
+Three honest limits. (i) The deep encoders trail the raw-inertial CRC baseline in absolute terms (56--61\% vs 87--94\%): the orientation-only encoding needed for cross-modal transfer discards the accelerometer-magnitude signal CRC exploits and carries yaw drift, so these numbers index \textit{relative} prior transfer, not the inertial ceiling. (ii) Unlike NTU$\rightarrow$Xsens, mae here is statistically level with scratch (not the negative-transfer culprit); on this target the negative transfer is carried by the \textit{supervised} prior. (iii) The effect that survives 3-seed pooling is the \textit{ordering} supMAE > supLP120 (p<.0001) and supLP120 < scratch (p$\approx$.04--.06), not a supMAE-over-scratch pp margin. We therefore report R6b as a sign-test-robust cross-modal \textit{inversion of prior ranking} --- supervised best$\rightarrow$worst, reconstruction as the differentiator --- bounded by R6c, rather than a reconstruction-beats-scratch accuracy claim.
+
+\textbf{supcon (3 seeds, pooled n=15/k) confirms it is the label-supervision, not the specific supervised recipe, that hurts.} supcon $-$ scratch = \textbf{$-$1.4 / $-$3.4 / $-$0.2 pp @ k=0/1/3} (n.s. to marginal, k=1 p=.053); pooled sign test supcon > scratch is 19/45 (p=.37, a wash trending negative, same reading as supLP120's own $-$2.3 pp mean). supcon vs supLP120 is statistically even (26/44, p=.29) --- the two label-aware objectives land in the same negative-to-neutral band, distinctly below supMAE (the only objective here with a reconstruction component). This rules out "something specific to softmax classification" as the mechanism and supports the more general reading: \textbf{any objective lacking a reconstruction/regularization component under-transfers across this modality gap}, regardless of whether the label supervision is delivered via cross-entropy (supLP120) or contrastive alignment (supcon).
+
+\subsubsection{R6c --- The prior's value is contingent on target-representation poverty (CZU-MHAD dual-branch)}
+
+R6b's orientation-only encoding capped deep accuracy at 56--61\% --- far below the raw-inertial CRC baseline. Two questions follow: was that the \textit{encoding} or the \textit{architecture}, and does the R6b reconstruction-prior benefit survive once the target model uses its \textbf{full raw signal}? We test both with a dual-branch recognizer (a from-scratch branch on the raw 10$\times$6 accel+gyro stream + the NTU-pretrained encoder on the R6b orientation quaternions, concatenated to a shared head) on the byte-identical CZU LOSO splits. \textbf{Both rows are now pooled over 3 seeds $\times$ 5 subjects (45 folds)}:
+
+\begin{table*}[!t]
+\centering
+\caption{R6c --- The prior's value is contingent on target-representation poverty (CZU-MHAD dual-branch)}
+\small
+\begin{tabular}{llllll}
+\toprule
+mode & scratch & mae & supMAE & supLP120 & CRC \\
+\midrule
+raw-only (k=0/1/3) & 81.9 / 90.0 / \textbf{95.6} & --- & --- & --- & 86.8 / 90.8 / 94.4 \\
+dual (k=0) & 86.0 & 84.8 & 85.6 & 84.5 & --- \\
+dual (k=1) & 88.8 & 88.6 & 88.2 & 87.0 & --- \\
+dual (k=3) & 91.9 & 91.6 & \textbf{92.0} & 90.0 & --- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Two results, both firmer under pooling. \textbf{(i) Representation, not architecture, was the R6b bottleneck.} The raw-signal branch alone reaches 81.9/90.0/95.6 (pooled, up from single-seed 80.7/89.8/95.2), matching/beating CRC and \textasciitilde{}30 pp above R6b's orientation-only encoders --- the collapse was the lossy encoding, not the deep model. \texttt{dual/scratch} vs \texttt{raw/scratch} remains a wash under pooling (19/42 folds, sign p=.644, mean$\Delta$ $-$0.27 pp --- up in power from the single-seed 6/12, p=1.00, same conclusion): a small k=0 gain (+4.1 pp) is paid back by a k=3 loss ($-$3.6 pp), so the second branch doesn't clearly earn its place. \textbf{(ii) On a strong target the NTU prior adds no value, and label-supervised-only priors actively hurt.} No prior beats \texttt{dual/scratch}: supMAE ties it (pooled 17/39 folds, sign p=.52 --- no detectable benefit), mae trends below (13/36, p=.13), \textbf{supLP120 is significantly worse --- pooled 6/41 folds (sign p<.0001), paired-t significant at every k} ($-$1.5 / $-$1.8 / $-$1.9 pp, p=.0016 / .040 / .0038), and \textbf{supcon is worse too --- pooled 13/43 folds (sign p=.014)}, paired-t marginal-to-significant ($-$1.2 / $-$1.1 / $-$1.1 pp, p=.048 / .12 / .08). The R6b reconstruction rescue is therefore \textbf{contingent on target-representation poverty}: it appears only when the target encoder is crippled to orientation-only and vanishes once the target exploits its own signal --- while the two label-aware-only priors (supLP120, supcon) both remain losers, now more significantly than in R6b, converging on the same reading as R6b: the reconstruction component, not the specific supervised recipe, is what saves an objective at large gap.
+
+\textbf{Dose-response along target richness (pooled 3-seed dial).} Interpolating a middle rung between R6b (orientation-only) and R6c (full raw) --- a 20-channel per-sensor accel-magnitude + gyro-magnitude target --- traces the prior benefit as a smooth function of target strength ($\Delta$ vs scratch, k=0/1/3, pooled seeds 42/43/44):
+
+\begin{center}
+\small
+\begin{tabular}{llll}
+\toprule
+target representation & scratch acc & supMAE $\Delta$ & supLP120 $\Delta$ \\
+\midrule
+0-ch quat-only (R6b) & 56 / 54 / 58 & +3.0 / +2.4 / +3.0 & $-$3.5 / $-$2.8 / $-$3.1 \\
+20-ch magnitudes (dial) & 84 / 88 / 90 & $-$1.4 / $-$1.6 / $-$1.1 & $-$4.1 / $-$5.2 / $-$3.6 \\
+60-ch full raw (R6c) & 87 / 89 / 91 & $-$0.4 / $-$0.4 / +0.3 & $-$2.1 / $-$3.5 / $-$2.5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The reconstruction prior's edge exists \textbf{only} at the fully-crippled orientation-only target and is gone the moment the target sees any real motion (even coarse magnitudes, where scratch already hits 84\%+); supLP120 is negative at every rung. This turns "contingent on target poverty" from a two-point contrast into an early-decay curve. Pooling tightens but does not change the shape (single-seed supMAE dial values were $-$1.9/$-$2.5/$-$0.8; pooled $-$1.4/$-$1.6/$-$1.1) --- steep-then-flat, not perfectly monotone.
+
+\textbf{Does the cold-start advantage (R4c) survive on a strong target?} R4c's deployment claim --- the
+prior is worth most at 0--1 enrolled subjects --- was established only on Xsens, a weak/moderate target.
+We repeat the subject-count sweep (N=0..3, \texttt{--n-train-subjects} added to \texttt{temp\_czu\_dualbranch.py})
+on CZU-dual, seed 42, single-seed (n=5 folds):
+
+\begin{table*}[!t]
+\centering
+\caption{R6c --- The prior's value is contingent on target-representation poverty (CZU-MHAD dual-branch)}
+\small
+\begin{tabular}{lllll}
+\toprule
+N & k & scratch & supLP120 $\Delta$ & supMAE $\Delta$ \\
+\midrule
+0 & 0 & 2.87 & +0.11 (n.s.) & +0.37 (n.s.) \\
+0 & 1 & 38.94 & \textbf{$-$5.62 p=.045} & \textbf{$-$5.55 p=.005} \\
+0 & 3 & 54.21 & +0.23 (n.s.) & \textbf{$-$2.87 p=.035} \\
+1 & 1 & 71.01 & $-$3.11 p=.085 (n.s.) & $-$3.51 p=.052 (n.s.) \\
+1 & 3 & 79.58 & \textbf{$-$2.54 p=.004} & $-$1.80 p=.076 (n.s.) \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\textbf{Neither prior beats scratch at any N, and both are significantly worse at N=0, k=1} --- the exact
+cold-start cell where the Xsens A2 result showed the prior's \textit{largest} benefit (+18.4 pp, R4c). This
+scopes the deployment claim precisely: **the cold-start advantage is itself contingent on target
+representation poverty**, mirroring R6c's main finding at N=4. A strong target's from-scratch branch
+apparently reaches a useful operating point with zero enrolled subjects and no prior --- there is no
+regime tested here where the NTU prior helps on this target. (Single-seed, n=5 folds; a 3-seed
+extension is queued but not run --- the signal is already significant at several (N,k) cells.)
+
+Read across the three CZU settings, the prior's value \textit{and its ranking} degrade monotonically with the gap:
+
+\begin{table*}[!t]
+\centering
+\caption{R6c --- The prior's value is contingent on target-representation poverty (CZU-MHAD dual-branch)}
+\small
+\begin{tabular}{lllll}
+\toprule
+Setting & Gap & Target repr. & Best prior & supLP120 (pure-supervised) \\
+\midrule
+R6 skeleton$\rightarrow$skeleton & small (same modality) & strong (native skeleton) & \textbf{supLP120 +7.2 pp @k0} (pooled p=.0004), beats CRC & best-in-class \\
+R6b IMU, orientation-only & large (cross-modal) & weak (orientation-only) & supMAE (ties scratch; > supLP120 36/44, p<.0001) & worst, below scratch (p$\approx$.04--.06) \\
+R6c IMU, raw/dual & large (cross-modal) & strong (raw $\approx$ CRC) & none (supMAE ties scratch, 17/39) & worst, p<.0001 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The two axes are separable: holding the gap large, moving the target representation from weak (R6b) to strong (R6c) removes the reconstruction prior's advantage; holding the target strong, moving the gap from small (R6, where supervised wins) to large (R6c) turns the supervised prior from best to worst. A single public dataset yields a controlled contrast in which the \textit{same} supervised prior is best-in-class in one modality and worst-in-class in another, purely as a function of gap width and target capability --- the sharpest external corroboration of the negative-transfer thesis (R2/R3): a transferred prior earns its keep only in proportion to the target's representational poverty.
+
+\subsubsection{R6d --- Second independent same-modality dataset (UTD-MHAD skeleton$\rightarrow$skeleton)}
+
+To confirm the small-gap "supervised prior wins" prediction (R6) is not specific to CZU, we replicate it on a second, independently collected public dataset: UTD-MHAD (Kinect-v1, 20 joints remapped to the NTU-25 layout; 8 subjects, 27 actions, 861 clips). Same objectives and LOSO k-shot protocol; pooled over 3 seeds $\times$ 8 subjects (24 folds per cell):
+
+\begin{table*}[!t]
+\centering
+\caption{R6d --- Second independent same-modality dataset (UTD-MHAD skeleton$\rightarrow$skeleton)}
+\small
+\begin{tabular}{lllll}
+\toprule
+k & scratch & mae & supMAE & supLP120 \\
+\midrule
+0 (zero-shot) & 77.4 & 80.3 & 81.0 & \textbf{84.7} \\
+1 & 90.9 & 92.3 & 93.5 & \textbf{94.8} \\
+3 & 94.0 & 95.2 & 94.1 & \textbf{96.4} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The R6 pattern replicates cleanly and with more power (24 folds vs 15). \textbf{supLP120 is the best prior at every k}: supLP120 $-$ scratch = \textbf{+7.4 / +3.9 / +2.5 pp} (paired-t p<.0001 / .0005 / .016), and supLP120 > supMAE in 40/53 folds (sign p=.0003). supMAE is also significant-positive (+3.6 / +2.6 / +0.2 pp; p=.0002 / .007 / n.s.), and --- as on CZU skeleton --- \textbf{mae is positive, not negative} (+1.8 pp mean, sign 42/63, p=.011): the reconstruction-hurts signature again does not appear on a same-modality small-gap target. Two independent public datasets (CZU skeleton R6, UTD skeleton R6d) now agree that the pure-supervised prior is best-in-class when the gap is small --- the mirror image of its worst-in-class behavior across the cross-modal gap (R6b/R6c).
+
+\textbf{supcon (3 seeds, pooled n=24) replicates just as strongly.} supcon $-$ scratch = \textbf{+8.4 / +4.0 / +2.9 pp @ k=0/1/3, all significant (p<.0001 / p<.0001 / p=.006)} --- matching supLP120's margin closely (sign test supcon>scratch 53/59, p<.0001). supcon vs supLP120 is statistically even here too (25/52, p=.89, mean$\Delta$ +0.5 pp n.s.) --- on UTD the two label-aware objectives are indistinguishable, both clearly beating scratch. Combined with the CZU result (where supcon edges out supLP120, p=.0002), the two-dataset, two-label-aware-objective picture is: \textbf{both supLP120 and supcon are best-in-class at small gap, with which one wins by more varying by dataset} --- the deeper regularity is "label-supervised, no reconstruction component" as a class, not one specific recipe.
+
+\textbf{Published-baseline comparison.} Same recognizer family as the CZU R6 anchor (statistical moments + CRC-RLS, $\lambda$=1e-4) on the byte-identical seed-42 LOSO splits (\texttt{temp\_utd\_crc\_baseline.py}):
+
+\begin{table*}[!t]
+\centering
+\caption{R6d --- Second independent same-modality dataset (UTD-MHAD skeleton$\rightarrow$skeleton)}
+\small
+\begin{tabular}{llllll}
+\toprule
+k & CRC baseline & scratch & mae & supMAE & supLP120 \\
+\midrule
+0 & 69.48 & 75.98 & 79.46 & 82.02 & \textbf{84.33} \\
+1 & 92.25 & 90.25 & 92.56 & 93.50 & \textbf{94.27} \\
+3 & 95.30 & 93.52 & 94.41 & 94.41 & \textbf{96.24} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+supLP120 $-$ CRC = \textbf{+14.85 / +2.02 / +0.94 pp} at k=0/1/3, echoing R6's consistent margin over the hand-crafted baseline. One difference worth noting honestly: on CZU, the from-scratch learned encoder was statistically level with CRC (R6); on UTD, \textbf{scratch already beats CRC by +6.5 pp at k=0} before any prior --- the architecture has some edge here even unpretrained, so the prior's marginal lift over scratch (+8.35 pp @k0) is smaller than its margin over CRC. (UTD-MHAD's own published cross-subject accuracy figure is not yet cited here --- TODO, needs a literature figure, not a rerun.)
+
+\subsubsection{R6e --- Synthesis: the five-setting map}
+
+Five source$\rightarrow$target settings, two public external datasets plus the two internal ones (Xsens position-derived, CZU orientation-only and dual-raw), give a controlled sweep over gap width and target-representation strength:
+
+\begin{table*}[!t]
+\centering
+\caption{R6e --- Synthesis: the five-setting map}
+\small
+\begin{tabular}{llllll}
+\toprule
+\# & Setting (source $\rightarrow$ target) & Gap & Target representation & Best prior ($\Delta$ vs scratch) & Negative-transfer case \\
+\midrule
+1 & NTU $\rightarrow$ CZU skeleton (R6) & small (same modality) & native skeleton & supLP120 +7.2 pp @k0 (p=.0004) & none (mae positive, n.s.) \\
+2 & NTU $\rightarrow$ UTD skeleton (R6d) & small (same modality) & native skeleton & supLP120 +7.4 pp @k0 (p<.0001) & none (mae +1.8 pp, p=.011, positive) \\
+3 & NTU $\rightarrow$ Xsens, position-derived quats (R2) & middle (cross-device, skeleton-like target) & strong (mocap-grade quats) & supMAE (McNemar +200/+76/+131 @k0/1/3, p$\le$.0065) & \textbf{mae} ($-$334/$-$217/$-$92, p<.001) \\
+4 & NTU $\rightarrow$ CZU IMU, orientation-only (R6b) & large (cross-modal) & weak (Madgwick quats, yaw drift) & none (supMAE $\approx$ scratch, 25/42 p=.28; supMAE > supLP120 36/44 p<.0001) & \textbf{supLP120} ($-$2.3 pp, p$\approx$.04--.06) \\
+5 & NTU $\rightarrow$ CZU IMU, dual raw (R6c) & large (cross-modal) & strong (raw $\approx$ CRC) & none (17/39, p=.52) & \textbf{supLP120} (6/41, p<.0001) \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+No pretraining objective is unconditionally safe across the skeleton$\rightarrow$wearable gap. Both the winning prior and the actively harmful one move as the gap widens and the target representation strengthens: supervised wins at small gap, hybrid at mid gap, nothing at large gap; the negative-transfer case is pure reconstruction at mid gap and pure supervision at large gap. The prior's gap-invariant value is calibration and cold-start data-efficiency (R4).
+
+\textbf{A fifth objective (supcon) sharpens the small/large split into an axis, not two isolated findings.} Added after this map was first drafted, supcon --- Khosla 2020 SupCon, label-supervised but contrastive rather than softmax --- tracks supLP120 almost exactly at every one of the four external settings: it \textbf{wins big at both small-gap datasets} (CZU +7.0/+4.8/+4.4 pp k=0/1/3, all p<.001; UTD +8.4/+4.0/+2.9 pp, all p$\le$.006 --- matching or exceeding supLP120's own margins, and beating supLP120 itself on CZU, p=.0002), and it \textbf{loses at both large-gap settings} (CZU-IMU quat: $-$1.4/$-$3.4/$-$0.2 pp, wash-to-marginal; CZU-IMU dual: sign 13/43 p=.014, significantly worse). Because supcon and supLP120 arrive at "label supervision" through different mechanisms (cross-entropy vs contrastive) yet land in the same place at every gap setting, the operative variable is not "is the objective supervised classification" but \textbf{"does the objective have a reconstruction/regularization component"} --- present in supMAE (the only objective that doesn't collapse at large gap) and absent from supLP120/supcon alike. This reframes row 4--5's "supLP120" negative-transfer entries as an instance of a \textit{class} of objectives, not a property specific to softmax classification.
+
+\textit{Gap ordering, measured:} the "middle" placement of NTU$\rightarrow$Xsens is not merely narrative. The encoder-space CKA-per-target check (R3 extension) did \textbf{not} confirm the small/middle/large ordering --- czu\_skeleton (claimed small gap, same bucket as utd\_skeleton) had the \textit{lowest} mean CKA of all four targets on the supLP120 encoder, below both the claimed-middle (xsens\_v2) and claimed-large (czu\_imu\_quat) settings, an instance of CKA's own necessary-not-sufficient limitation (R3) rather than a fit we forced. But a raw, encoder-free measurement --- squared-MMD and Frechet distance on a hand-crafted, model-free feature (R3) --- \textbf{does confirm the ordering exactly and monotonically}: czu\_skeleton (MMD\textsuperscript{2}=0.056) < utd\_skeleton (0.096) < xsens\_v2 (0.122) < czu\_imu\_quat (0.205), same ranking on Frechet distance independently. The gap ordering in this table therefore rests on three converging lines of evidence --- the downstream sign-test/accuracy pattern above, and now a measured raw-distributional gap that tracks it directly --- with CKA's alignment-based null read as a separate, orthogonal finding about what encoder alignment does and doesn't predict (R3), not as evidence against the ordering itself.
+
+\subsection{Numbers ledger (traceability)}
+\begin{itemize}
+  \item R1 within-domain: \texttt{trained\_models/NTU-to-NTU-objective-sanity/}; cross-domain: \texttt{LOSO-fullTrainCalibrate-v2\{,-seed43,-seed44\}/}.
+  \item R2 McNemar / R3 CKA / R4a ECE: \texttt{trained\_models/Phase1-analysis/\{mcnemar,cka,ece\}\_results.csv}.
+  \item R4b AUC-30/convergence: \texttt{wiki/results/multiseed-loso-v2.md} (RESEARCH\_LOG \S{}B).
+  \item R4c A2: pooled 3 seeds --- \texttt{trained\_models/A2-subjectScaling\{,-seed43,-seed44\}/N*/summary.csv}, pooled table \texttt{trained\_models/A2-subjectScaling-pooled/a2\_pooled\_results.csv}.
+  \item R5 controller (locked/robust): \texttt{trained\_models/Phase3-controller/robust/\{vocab\_sweep,vocab\_ordering,costmodel\_sweep,frontier,iso\_safety\}.csv} + PNGs (\texttt{temp\_controller\_robust.py}); prototype in \texttt{Phase3-controller/\{controller\_results,operating\_point\_summary\}.csv}.
+  \item R6 CZU: \texttt{trained\_models/CZU-skeleton-LOSO/}; CRC baseline \texttt{\dots{}/crc\_baseline/\{crc\_summary,comparison,crc\_per\_fold\}.csv} (\texttt{temp\_czu\_crc\_baseline.py}).
+  \item R6b CZU inertial (cross-modal): \texttt{trained\_models/CZU-IMU-LOSO/summary.csv}; CRC \texttt{\dots{}/crc\_baseline/} (\texttt{temp\_czu\_imu\_parser.py}, \texttt{temp\_czu\_imu\_loso.sh}, \texttt{temp\_czu\_imu\_crc\_baseline.py}); data \texttt{Data\_Processed/czu\_imu\_quats/}.
+  \item R6c CZU dual-branch: \texttt{trained\_models/CZU-IMU-DUAL\{,-seed43,-seed44\}/\{raw,quat,dual\}\_<prior>/summary.csv} (\texttt{temp\_czu\_imu\_raw\_export.py}, \texttt{temp\_czu\_dualbranch.py}, \texttt{temp\_czu\_dual\_run.sh} $\rightarrow$ \texttt{czu\_dual.log}; raw-only pooled seeds via \texttt{temp\_t1\_multiseed\_run.sh} $\rightarrow$ \texttt{t1\_multiseed.log}); raw data \texttt{Data\_Processed/czu\_imu\_raw/}; reuses CZU-IMU-LOSO splits; pooled \texttt{trained\_models/CZU-IMU-DUAL-pooled/raw\_scratch\_pooled.csv}. Target-richness dial, pooled 3 seeds: \texttt{trained\_models/CZU-IMU-DIAL/mag20\{,-seed43,-seed44\}/} (\texttt{temp\_czu\_imu\_mag\_export.py}, \texttt{temp\_czu\_dial\_run.sh} + \texttt{temp\_t1\_multiseed\_run.sh}), pooled \texttt{trained\_models/CZU-IMU-DIAL-pooled/dial\_pooled\_raw.csv}.
+  \item R6/R6b/R6c 3-seed pooling: \texttt{trained\_models/CZU-\{skeleton-LOSO,IMU-LOSO,IMU-DUAL\}-seed\{43,44\}/} pooled with the seed-42 dirs; recompute via \texttt{temp\_czu\_multiseed\_analyze.py} (\texttt{temp\_czu\_multiseed\_run.sh} $\rightarrow$ \texttt{czu\_multiseed.log}).
+  \item R6d UTD-MHAD skeleton: \texttt{trained\_models/UTD-skeleton-LOSO-seed\{42,43,44\}/summary.csv} (\texttt{temp\_utd\_parser.py}, \texttt{temp\_utd\_run.sh} $\rightarrow$ \texttt{czu\_utd\_run.log}); data \texttt{Data\_Processed/utd\_skeleton\_lrq/}.
+  \item R6/R6b/R6c/R6d supcon extension (3 seeds each): \texttt{trained\_models/\{CZU-skeleton-LOSO,CZU-IMU-LOSO,UTD-skeleton-LOSO\}-supcon-seed\{42,43,44\}/summary.csv}, \texttt{trained\_models/CZU-IMU-DUAL-supcon-seed\{42,43,44\}/dual\_supcon/summary.csv} (\texttt{temp\_t2b\_followon\_run.sh} stage 6); ad hoc pooling scripts, not yet folded into \texttt{temp\_czu\_multiseed\_analyze.py}.
+\end{itemize}
