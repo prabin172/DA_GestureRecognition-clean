@@ -1,0 +1,28 @@
+{
+  "action_ids": [1, 3, 6, 7, 8, 9, 23, 24, 26, 27, 35, 50, 52, 59, 60, 80, 92, 96, 99, 100, 101, 102, 112],
+  "action_names": {
+    "1": "drink water",
+    "3": "brush teeth",
+    "6": "pick up",
+    "7": "throw",
+    "8": "sit down",
+    "9": "stand up",
+    "23": "hand waving",
+    "24": "kicking something",
+    "26": "hopping",
+    "27": "jump up",
+    "35": "nod head/bow",
+    "50": "punch/slap",
+    "52": "pushing",
+    "59": "walking towards",
+    "60": "walking apart",
+    "80": "squat down",
+    "92": "move heavy objects",
+    "96": "cross arms",
+    "99": "run on the spot",
+    "100": "butt kicks",
+    "101": "cross toe touch",
+    "102": "side kick",
+    "112": "high-five"
+  }
+}

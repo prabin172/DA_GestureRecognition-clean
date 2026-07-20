@@ -16,6 +16,7 @@ Outputs under --out-dir (default trained_models/Phase1-analysis):
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -26,10 +27,10 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-from src.models.kinematic_encoder import KinematicEncoder  # noqa: E402
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.models.kinematic_encoder import KinematicEncoder  # noqa: E402
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 MAX_FRAMES = 120

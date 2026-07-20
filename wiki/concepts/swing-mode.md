@@ -12,7 +12,7 @@ Remove the **axial twist** component from Xsens segment quaternions, keeping swi
 Skeleton-derived quaternions can't capture segment roll, so removing twist from Xsens should move it *closer* to NTU → smaller gap → better cross-domain calibration.
 
 ## Outcome: hypothesis WRONG in feature space — and superseded by v2
-[[mmd-domain-gap|MMD]] NTU↔Xsens **increased ~3×** under swing for every encoder except supervised. The symmetric test is now run (`temp_mmd_domain_gap_symmetric.py`): swing-projecting NTU too barely moved it (still ~3× wide) → the increase was **not** the asymmetry but twist-stripping *damaging* Xsens (a fixed-axis, pose-dependent, lossy distortion — not NTU's clean swing-only orientation).
+[[mmd-domain-gap|MMD]] NTU↔Xsens **increased ~3×** under swing for every encoder except supervised. The symmetric test is now run (`mmd_domain_gap_symmetric.py (dead, not in this repo)`): swing-projecting NTU too barely moved it (still ~3× wide) → the increase was **not** the asymmetry but twist-stripping *damaging* Xsens (a fixed-axis, pose-dependent, lossy distortion — not NTU's clean swing-only orientation).
 
 **Superseded:** the correct fix is to rebuild Xsens from positions through NTU's own shortest-arc construction — [[position-reconstruction-v2]] (v2). v2 MMD is *below* local for every encoder. Swing is now, at most, a mounting-variance-normalization ablation.
 

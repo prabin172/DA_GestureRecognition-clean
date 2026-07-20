@@ -55,7 +55,7 @@ from src.models.kinematic_encoder import KinematicEncoder
 # -----------------------------
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-IMU_DIR = PROJECT_ROOT / "Data_Processed" / "imu_quats"
+IMU_DIR = PROJECT_ROOT / "Data_Processed" / "imu_quats_v2"
 IMU_INDEX = IMU_DIR / "index.csv"
 
 MAX_FRAMES = 120
@@ -122,6 +122,12 @@ METHOD_CONFIGS: Dict[str, Dict] = {
         "init": "pretrained",
         "ckpt": Path("trained_models/SUPMAE/supmae_best.pth"),
         "note": "source SupMAE encoder",
+    },
+    "supcon": {
+        "tag": "supcon",
+        "init": "pretrained",
+        "ckpt": Path("trained_models/ContrastiveNTU/supcon_epoch_50.pth"),
+        "note": "source supervised contrastive (SupCon), NTU-120",
     },
 }
 
@@ -1053,6 +1059,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--base-epochs", type=int, default=None, help="Override BASE_EPOCHS.")
     parser.add_argument("--calib-epochs", type=int, default=None, help="Override CALIB_EPOCHS.")
     parser.add_argument("--batch-size", type=int, default=None, help="Override BATCH_SIZE.")
+    parser.add_argument("--base-seed", type=int, default=None, help="Base seed (default 42 = existing runs). Use 43/44 for multi-seed.")
+    parser.add_argument("--out-dir", default=None, help="Output root. Use a NEW dir for multi-seed runs so existing results stay intact.")
     return parser.parse_args()
 
 
@@ -1068,6 +1076,9 @@ def apply_arg_overrides(args: argparse.Namespace) -> Tuple[Optional[List[str]], 
     global BASE_EPOCHS
     global CALIB_EPOCHS
     global BATCH_SIZE
+    global BASE_SEED
+    global OUT_DIR, LOG_DIR, MODEL_DIR, SPLIT_DIR, PLOT_DIR
+    global SUMMARY_CSV, BASE_SUMMARY_CSV, LABEL_MAP_JSON
 
     if args.run_only_test_subject is not None:
         RUN_ONLY_TEST_SUBJECT = args.run_only_test_subject
@@ -1077,6 +1088,17 @@ def apply_arg_overrides(args: argparse.Namespace) -> Tuple[Optional[List[str]], 
         CALIB_EPOCHS = args.calib_epochs
     if args.batch_size is not None:
         BATCH_SIZE = args.batch_size
+    if args.base_seed is not None:
+        BASE_SEED = args.base_seed
+    if args.out_dir is not None:
+        OUT_DIR = PROJECT_ROOT / args.out_dir
+        LOG_DIR = OUT_DIR / "Logs"
+        MODEL_DIR = OUT_DIR / "models"
+        SPLIT_DIR = OUT_DIR / "splits"
+        PLOT_DIR = OUT_DIR / "plots"
+        SUMMARY_CSV = OUT_DIR / "summary.csv"
+        BASE_SUMMARY_CSV = OUT_DIR / "base_training_summary.csv"
+        LABEL_MAP_JSON = OUT_DIR / "label_map.json"
 
     return parse_csv_arg(args.oov_labels), parse_csv_arg(args.methods)
 

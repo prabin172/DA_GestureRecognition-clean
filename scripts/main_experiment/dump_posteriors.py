@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -24,14 +25,14 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
 # Point the LOSO module at the v2 data BEFORE importing it (it reads LOSO_IMU_DIR at import).
 os.environ.setdefault("LOSO_IMU_DIR", "Data_Processed/imu_quats_v2")
 
 import scripts.main_experiment.loso_fulltrain_calibration as L  # noqa: E402
 from src.models.kinematic_encoder import KinematicEncoder  # noqa: E402
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 

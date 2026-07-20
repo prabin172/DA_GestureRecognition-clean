@@ -8,7 +8,7 @@ updated: 2026-07-03
 
 **Question:** does target-only pretraining match NTU pretraining? (The RESEARCH_LOG A5 "spine-deciding" question.)
 
-**Protocol:** pretrain encoder on the 4 non-held-out Xsens subjects with a given objective, **freeze it**, run the identical head-only k-shot calibration as [[loso-fulltrain-calibrate]] (calibration code imported from `temp_loso_fulltrain_calibration.py` as `L` so it cannot drift). `supervised` column ≡ Job 1 `scratch` by construction. Script: `temp_xsens_to_xsens_loso_calibration.py`. Dir: `trained_models/XsensToXsens-LOSO-swing/` (50 rows, swing mode, 2026-07-01).
+**Protocol:** pretrain encoder on the 4 non-held-out Xsens subjects with a given objective, **freeze it**, run the identical head-only k-shot calibration as [[loso-fulltrain-calibrate]] (calibration code imported from `scripts/main_experiment/loso_fulltrain_calibration.py` as `L` so it cannot drift). `supervised` column ≡ Job 1 `scratch` by construction. Script: `temp_xsens_to_xsens_loso_calibration.py`. Dir: `trained_models/XsensToXsens-LOSO-swing/` (50 rows, swing mode, 2026-07-01).
 
 | objective | k=0 | k=1 | k=3 | k=5 | k=10 |
 |---|---|---|---|---|---|

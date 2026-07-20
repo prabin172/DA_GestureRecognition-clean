@@ -7,7 +7,7 @@ updated: 2026-07-03
 # Sanity checks (within-domain controls)
 
 ## NTU→NTU objective sanity (Pillar 1 evidence)
-Linear probe (30 ep) on NTU for each pretrained encoder. Script: `temp_ntu_to_ntu_objective_sanity.py`. Dir: `trained_models/NTU-to-NTU-objective-sanity/` (+ smoke).
+Linear probe (30 ep) on NTU for each pretrained encoder. Script: `scripts/main_experiment/ntu_to_ntu_objective_sanity.py`. Dir: `trained_models/NTU-to-NTU-objective-sanity/` (+ smoke).
 
 | method | final_acc |
 |---|---|

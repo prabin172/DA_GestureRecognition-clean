@@ -1,20 +1,48 @@
 ---
 type: index
 status: active
-updated: 2026-07-10
+updated: 2026-07-20
 ---
 
 # Wiki Index
 
-Start at [[overview]] (thesis + current state + where stuck). Latest state (2026-07-10, THMS publishability push, `tasks.md` T1/T2/T5 analysis + write-up): **SupCon (5th objective) analyzed end-to-end** — R1 (within/cross-domain accuracy, wash vs scratch like the others), R2/R4a (McNemar + ECE, 2nd-best-calibrated after supLP120), R5 (controller, mae still worst of 5; **found + documented a script quirk**: `reliability_ordered_vocab()` pools recall across all loaded methods, so adding supcon silently shifted the fixed vocab used by Locks 2/3 — the locked table is untouched, supcon's own numbers reported separately, ordering still replicates), and all four external datasets (R6/R6b/R6c/R6d) — **supcon tracks supLP120 almost exactly at every setting: wins big at small gap (both CZU/UTD, p≤.006), loses at large gap (both quat/dual)**, reframing the R6e axis from "supervised vs reconstruction" to "label-supervision-only (any recipe) vs has-a-reconstruction-component". **T1 multi-seed pooling landed**: A2 (now 3-seed, the k=1/N=1 spike confirmed real not a seed artifact, +18.4pp p<.0001), R6c raw-only + DIAL dial (both pooled, same conclusions tighter). **T5 (new): the A2 cold-start deployment lever is itself target-representation-contingent** — repeating the subject-scaling sweep on CZU's strong target finds no N where any prior beats scratch, both significantly *worse* at N=0,k=1 (see [[czu-dual-cold-start]]). Prior state (2026-07-09): **R6e five-setting synthesis table** (`paper/paper_results.md`) unifies R2/R6/R6b/R6c/R6d into one gap×target-strength map. **T3 (CKA per target): does NOT confirm the small/middle/large gap ordering** — reported as an honest null (see [[domain-gap-metrics]]). Prior state: [[multiseed-loso-v2]] (**3-seed stats — mae = negative transfer**) · [[czu-skeleton-loso]] (independent public target, now pooled+supcon) · [[czu-imu-crossmodal]] (**cross-modal, 3-seed pooled + supcon**) · [[czu-imu-dual]] (**R6c pooled + supcon + cold-start**) · [[utd-skeleton-loso]] (**R6d, pooled + supcon**) · [[position-reconstruction-v2]] (v2 domain-gap fix) · [[open-questions]].
+Start at [[overview]] (thesis + current state + where stuck). **This is now the sole active repo** —
+the original `DA_GestureRecognition` (sibling repo) was deleted locally 2026-07-16 after this repo's
+full 10-stage reproducibility rerun completed and superseded it; its GitHub remote
+(`RTHMLab/DA_GestureRecognition`) still exists, deletion deferred pending team check-in.
+
+**Latest state (2026-07-20): full paper_results.md reconciliation against this repo's independently
+retrained checkpoints.** Every number in `paper/paper_results.md` (R1–R6e) was recomputed from this
+repo's fresh rerun and compared against the original repo's numbers. Pattern found: `scratch`/CRC
+numbers (no pretrained-checkpoint dependency) reproduce exactly; everything downstream of a retrained
+NTU-pretraining checkpoint carries a 1–5pp noise floor from non-deterministic GPU training
+(`cudnn.deterministic=False` throughout, by original design — this is the first time the pipeline has
+ever run in a pinned, reproducible environment). Most claims held directionally; five did not survive
+as originally stated and were rewritten/softened rather than kept: R2's supMAE-k=0 McNemar flip
+(+200→−22, both n.s.), R3's supcon-CKA "sharpest instance" claim (now lower than supLP120 — CKA
+de-prioritized in favor of raw MMD²/Frechet as primary domain-distance evidence, per human decision),
+R6b's two headline significance claims (weakened to trends), and **R5's controller Lock 2/3 no longer
+agree with Lock 1 on which method compounds worst** (supLP120, not mae, is now worst under harsh
+critical-cost penalties — a real, mechanistically-explained effect tied to supLP120's known
+confident-false-critical-activation mode, not a bug). Conversely, R4c (A2) and R5 Lock 1 reproduced
+almost exactly, and R6c's supcon-hurts-on-strong-targets finding got *stronger*, not weaker. Full
+account: `paper/paper_results.md`'s 2026-07-20 update note + each section's inline notes; wiki pages
+below updated to match. **Two experiments were promoted from single-seed to 3-seed and launched**
+(OOV leave-class-out, CZU-dual cold-start T5) — both in progress as of this writing, ~1.5 days ETA.
+
+Prior state (2026-07-10, THMS publishability push): SupCon (5th objective) analyzed end-to-end across
+R1–R6e; T1 multi-seed pooling (A2, R6c); T5 cold-start scoping check (single-seed then). See git
+history / `wiki/log.md` for the full trail — superseded by the 2026-07-20 reconciliation above where
+the two conflict. [[multiseed-loso-v2]] · [[czu-skeleton-loso]] · [[czu-imu-crossmodal]] ·
+[[czu-imu-dual]] · [[utd-skeleton-loso]] · [[position-reconstruction-v2]] · [[open-questions]].
 
 ## Concepts
 - [[lrq]] — Local Relative Quaternions, 17-segment model, padding; the shared representation
 - [[loso-protocol]] — LOSO, k-shot calibration, OOV variant, the n=5 stats problem
 - [[pretraining-objectives]] — MAE / supervised / SupMAE / SupCon / DANN / scratch + verdicts
 - [[swing-mode]] — axial-twist removal: hypothesis, outcome, sub7/sub8 asymmetry
-- [[domain-gap-metrics]] — MMD (flawed), CKA (done, per-encoder + **per-target T3: does NOT confirm the small/middle/large gap ordering**), necessary-not-sufficient nuance, **+ raw method-independent gap (2026-07-12): MMD²/Frechet on hand-crafted features DOES confirm the ordering, opposite of CKA — now in `paper_results.md` R3/R6e**
-- [[controller]] — **new (2026-07-12): full design doc for the C6 controller** — mission/FSM/cost-model mechanics, the 3 robustness locks explained, what the abstraction represents, + the planned (unapproved) live-study extension
+- [[domain-gap-metrics]] — MMD (flawed), CKA (per-encoder + **per-target: does NOT confirm the small/middle/large gap ordering, in either the original or 2026-07-20 rerun**), necessary-not-sufficient nuance, **+ raw method-independent gap: MMD²/Frechet on hand-crafted features DOES confirm the ordering exactly, unchanged by the checkpoint retrain (no pretrained encoder involved) — now the paper's primary domain-distance evidence, CKA de-prioritized per 2026-07-20 human decision**
+- [[controller]] — full design doc for the C6 controller — task/FSM/cost-model mechanics, the 3 robustness locks explained, what the abstraction represents, + the planned (unapproved) live-study extension. **2026-07-16: terminology revised** — grasp/release/mission language replaced with System Input/Safety-Critical State/Sequential Control Task (no numbers changed)
 
 ## Data
 - [[ntu-dataset]] — source: 43 490 clips, 120 classes, parser/loader, variants
@@ -39,15 +67,15 @@ Start at [[overview]] (thesis + current state + where stuck). Latest state (2026
 - [[early-experiments]] — superseded first-generation runs
 
 ## Results & paper
-- [[phase1-mcnemar-ece-cka]] — **Phase 1: per-clip McNemar (mae neg-transfer p<.001 every k), ECE (supLP120 best-calibrated, supcon 2nd), CKA (supLP120/supcon align best, supcon numerically highest yet accuracy is a wash — sharpest alignment≠accuracy dissociation)** — no retrain
-- [[a2-subject-scaling]] — **Phase 2: prior benefit vs #FT-subjects, now 3-seed pooled — peaks N=0/1 (supLP120 +27.5pp @k3,N1, p<.0001), washes to ≈1–1.4pp by N=4; mae ≤0** (replaces dead gap-knob). **Caveat: lever is target-representation-contingent, see [[czu-dual-cold-start]]**
-- [[czu-dual-cold-start]] — **T5 (new): does A2's cold-start lever survive on a strong target? No** — neither supLP120 nor supMAE beats scratch at any N on CZU-dual; both significantly worse at N=0,k=1
-- [[phase3-controller]] — **Phase 3 (prototype+robust): controller on real posteriors — compounding (mae 0.75 vs supMAE 0.97 task-success @k1), calibration→safety, locked** + **supcon extension (2026-07-10): Lock 1 exact-reproduces, Locks 2/3 exposed a vocab-selection script quirk (documented, ordering still replicates)**
+- [[phase1-mcnemar-ece-cka]] — **Phase 1: per-clip McNemar (mae neg-transfer p<.001 every k, seed/checkpoint-stable; supMAE/supLP120/supcon only significant at k=3 now), ECE (supLP120 best-calibrated, supcon 2nd — most checkpoint-stable result in the paper), CKA (2026-07-20: supcon's "numerically highest" claim did not survive — now below supLP120; CKA de-prioritized, raw MMD²/Frechet is primary evidence)**
+- [[a2-subject-scaling]] — **Phase 2: prior benefit vs #FT-subjects, 3-seed pooled — peaks N=0/1 (supLP120 +28.3pp @k3,N1, reproduces the original +27.5pp within noise), washes to ≈1–2pp by N=4; mae ≤0 from N≥2** (replaces dead gap-knob). **The most checkpoint-stable result in the paper besides ECE. Caveat: lever is target-representation-contingent, see [[czu-dual-cold-start]]**
+- [[czu-dual-cold-start]] — **T5: does A2's cold-start lever survive on a strong target? No** — neither supLP120 nor supMAE beats scratch at any N on CZU-dual; both significantly worse at N=0,k=1. **3-seed extension launched 2026-07-20, in progress**
+- [[phase3-controller]] — **Phase 3: controller on real posteriors. 2026-07-20 reconciliation: Lock 1 (primary protocol) still shows mae worst; Locks 2/3 now show supLP120 worst under harsh penalties instead — a real, explainable divergence (supLP120's known confident-false-critical-activation mode is more pronounced on the retrained checkpoint), not a bug. supcon is the standout at k=1 across all locks.**
 - [[multiseed-loso-v2]] — **3-seed LOSO-v2 stats: accuracy + AUC + convergence; the load-bearing stats** (McNemar now paid in [[phase1-mcnemar-ece-cka]])
-- [[czu-skeleton-loso]] — **CZU-MHAD skeleton→skeleton external validity (R6, now pooled 3-seed + supcon)** — supLP120 +7.2pp @k0 p=.0004; **supcon +7.0/+4.8/+4.4pp all k, p<.001, beats supLP120 itself p=.0002**
-- [[czu-imu-crossmodal]] — **CZU-MHAD skeleton→IMU TRUE cross-modal (R6b, 3-seed pooled + supcon)** (prior ranking inverts: supLP120 worst / below scratch; supMAE > supLP120 36/44 p<.0001 but supMAE≈scratch — the single-seed +3 pp was a seed-42 artifact; **supcon tracks supLP120's negative/neutral pattern**, ruling out "softmax-specific" as the mechanism)
-- [[czu-imu-dual]] — **CZU-MHAD dual-branch (R6c, dual pooled + supcon + cold-start)** (raw scratch ≈ CRC → representation was the bottleneck; on a strong target the prior adds nothing, supLP120 worst p<.0001, **supcon also worse p=.014**; +target-richness dose-response dial pooled — three-column gap-contingent arc; **+cold-start extension: no N helps either, see [[czu-dual-cold-start]]**)
-- [[utd-skeleton-loso]] — **UTD-MHAD skeleton→skeleton (R6d, + supcon)** (2nd independent public dataset; small-gap supLP120 win replicates +7.4 pp @k0 p<.0001, mae positive not negative; **T4 CRC anchor: supLP120−CRC +14.85pp @k0**; **supcon +8.4pp @k0 p<.0001, statistically tied with supLP120**)
+- [[czu-skeleton-loso]] — **CZU-MHAD skeleton→skeleton external validity (R6, pooled 3-seed + supcon, 2026-07-20 reconciled)** — supLP120 +5.0pp @k0 p=.0012 (was +7.2pp, still clearly significant); **supcon +5.2/+4.7/+3.4pp all k, p<.005, beats supLP120 itself p=.044**
+- [[czu-imu-crossmodal]] — **CZU-MHAD skeleton→IMU TRUE cross-modal (R6b, 3-seed pooled + supcon, 2026-07-20: significance weakened to trends)** — direction unchanged (supLP120 trends worst, supMAE trends best) but neither clears p<.05 anymore; the significant version of this contrast now lives in [[czu-imu-dual]]
+- [[czu-imu-dual]] — **CZU-MHAD dual-branch (R6c, dual pooled + supcon + cold-start, 2026-07-20: got sharper, not weaker)** (raw scratch ≈ CRC → representation was the bottleneck; on a strong target `dual/scratch` is now the best performer at every k — supLP120 worst p=.0015, **supcon worse still, p<.0001, nearly double the original effect size**; **cold-start 3-seed extension launched 2026-07-20, in progress**)
+- [[utd-skeleton-loso]] — **UTD-MHAD skeleton→skeleton (R6d, + supcon, 2026-07-20 reconciled)** (2nd independent public dataset; supLP120 win holds at k=0/k=1 (+5.0pp p=.0014), k=3 now a trend; supLP120 vs supMAE lost significance (was p=.0003, now p=.20); **supcon is now the clear standout, beating supLP120 (was a wash) at +8.0pp @k0 p<.0001**)
 - [[position-reconstruction-v2]] — **v2 position-derived Xsens: the real domain-gap fix** (supersedes swing)
 - [[swing-mode-findings]] — synthesis of the 2026-07-01 swing runs
 - [[publishability-review]] — the 8 problems + fix list (2026-07-01 audit)
@@ -56,6 +84,14 @@ Start at [[overview]] (thesis + current state + where stuck). Latest state (2026
 
 ## Questions
 - [[open-questions]] — TODO, blockers, standing puzzles
+
+## Reproducibility rerun — COMPLETE (2026-07-13 to 2026-07-15, reconciled 2026-07-20)
+This repo (`DA_GestureRecognition-clean`) is a from-scratch reproduction of the original
+`DA_GestureRecognition` repo's numbers — organized `scripts/` by pipeline stage (was flat `temp_*` in
+the original repo's root), verified data migration (`migration/MANIFEST.md`), frozen
+`requirements.txt`. All 10 stages completed 2026-07-15 (`SESSION_HANDOFF.md`); `paper/paper_results.md`
+was reconciled against the fresh numbers 2026-07-20 (see the note at the top of this page). The
+original repo is now deleted locally — this is the sole active repo.
 
 ## Non-wiki key files
 **`paper/` folder (repo root)** — the drafted manuscript, split by section (**`paper_results.md` = source of truth for numbers**): `paper_idea.md` (THMS blueprint + 2026-07-05 reshape note), `paper_intro.md`, `paper_method.md`, `paper_results.md`, `paper_discussion.md`, `paper_conclusion.md`, `paper_abstract.md`, `paper_experiments_plan.md` (tiered experiment roadmap), `live_study_protocol.md` (T7 — **NOT approved**, discussion draft only, do not build from it without human sign-off). `RESEARCH_LOG.md` (Planning↔Implementation channel — follow its rules), `SESSION_HANDOFF.md` (thin pointer), `CODEBASE_DESCRIPTION.md` / `projectAnalysis.md` (raw sources, superseded for navigation).

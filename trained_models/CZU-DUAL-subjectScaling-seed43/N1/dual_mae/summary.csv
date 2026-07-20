@@ -1,0 +1,16 @@
+test_subject,mode,prior,k,eval_samples,final_acc
+cx,dual,mae,0,286,67.832
+cx,dual,mae,1,264,66.667
+cx,dual,mae,3,220,79.091
+cyy,dual,mae,0,220,53.182
+cyy,dual,mae,1,198,61.616
+cyy,dual,mae,3,154,72.078
+myj,dual,mae,0,220,59.545
+myj,dual,mae,1,198,62.626
+myj,dual,mae,3,154,75.325
+qyh,dual,mae,0,241,58.506
+qyh,dual,mae,1,219,65.297
+qyh,dual,mae,3,175,75.429
+zyh,dual,mae,0,198,70.202
+zyh,dual,mae,1,176,74.432
+zyh,dual,mae,3,132,90.909

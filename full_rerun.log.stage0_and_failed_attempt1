@@ -1,0 +1,99 @@
+===== FULL RERUN START Sun Jul 12 11:53:06 PM CDT 2026 =====
+===== STAGE 0: DATA PIPELINE START Sun Jul 12 11:53:06 PM CDT 2026 =====
+----- [1/6] Xsens v2 (position-derived quats) -----
+Loaded 20 session offsets -> /home/ptimilsina/projects/DA_GestureRecognition-clean/Data_Processed/imu_quats_v2
+Processing sub7-a ...
+  sub7-a: 146 clips
+Processing sub7-b1 ...
+  sub7-b1: 131 clips
+Processing sub7-b2 ...
+  sub7-b2: 130 clips
+Processing sub7-c ...
+  sub7-c: 140 clips
+Processing sub8-a ...
+  sub8-a: 144 clips
+Processing sub8-b1 ...
+  sub8-b1: 130 clips
+Processing sub8-b2 ...
+  sub8-b2: 135 clips
+Processing sub8-c ...
+  sub8-c: 138 clips
+Processing sub9-a ...
+  sub9-a: 137 clips
+Processing sub9-b1 ...
+  sub9-b1: 136 clips
+Processing sub9-b2 ...
+  sub9-b2: 131 clips
+Processing sub9-c ...
+  sub9-c: 132 clips
+Processing sub10-a ...
+  sub10-a: 156 clips
+Processing sub10-b1 ...
+  sub10-b1: 141 clips
+Processing sub10-b2 ...
+  sub10-b2: 144 clips
+Processing sub10-c ...
+  sub10-c: 130 clips
+Processing sub11-a ...
+  sub11-a: 150 clips
+Processing sub11-b1 ...
+  sub11-b1: 127 clips
+Processing sub11-b2 ...
+  sub11-b2: 127 clips
+Processing sub11-c ...
+  sub11-c: 131 clips
+
+DONE. 2736 clips -> /home/ptimilsina/projects/DA_GestureRecognition-clean/Data_Processed/imu_quats_v2
+----- [2/6] CZU skeleton -----
+  300/1165
+  600/1165
+  900/1165
+DONE 1165 clips (0 skipped) -> /home/ptimilsina/projects/DA_GestureRecognition-clean/Data_Processed/czu_skeleton_lrq
+subjects=['cx', 'cyy', 'myj', 'qyh', 'zyh']  actions=22
+----- [3/6] CZU IMU quats -----
+  100/1165 processed
+  200/1165 processed
+  300/1165 processed
+  400/1165 processed
+  500/1165 processed
+  600/1165 processed
+  700/1165 processed
+  800/1165 processed
+  900/1165 processed
+  1000/1165 processed
+  1100/1165 processed
+
+Done. 1165 clips -> /home/ptimilsina/projects/DA_GestureRecognition-clean/Data_Processed/czu_imu_quats (skipped 0)
+subjects: ['cx', 'cyy', 'myj', 'qyh', 'zyh']  actions: 22
+----- [4/6] CZU IMU raw (dual-branch target) -----
+Done. 1165 raw clips -> /home/ptimilsina/projects/DA_GestureRecognition-clean/Data_Processed/czu_imu_raw
+channel mean range [-4.548,3.922]  std range [0.060,96.112]
+n_frames match quat: True
+----- [5/6] CZU IMU mag20 (DIAL dose-response rung) -----
+Done. 1165 mag20 clips -> /home/ptimilsina/projects/DA_GestureRecognition-clean/Data_Processed/czu_imu_mag20
+channel mean range [0.987,94.821]  std range [0.043,88.194]
+----- [6/6] UTD skeleton -----
+  200/861
+  400/861
+  600/861
+  800/861
+DONE 861 clips (0 skipped) -> /home/ptimilsina/projects/DA_GestureRecognition-clean/Data_Processed/utd_skeleton_lrq
+subjects=['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8']  actions=27
+===== STAGE 0 DATA PIPELINE DONE Sun Jul 12 11:59:22 PM CDT 2026 =====
+===== STAGE 1: NTU PRETRAINING START Sun Jul 12 11:59:22 PM CDT 2026 =====
+----- [1/4] supLP120 (pure supervised) -----
+Traceback (most recent call last):
+  File "/home/ptimilsina/projects/DA_GestureRecognition-clean/scripts/pretrain/pretrain_supLP120.py", line 300, in <module>
+    main()
+  File "/home/ptimilsina/projects/DA_GestureRecognition-clean/scripts/pretrain/pretrain_supLP120.py", line 294, in main
+    train_one("all120")
+  File "/home/ptimilsina/projects/DA_GestureRecognition-clean/scripts/pretrain/pretrain_supLP120.py", line 203, in train_one
+    dataset, num_classes, meta = build_dataset(mode_name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ptimilsina/projects/DA_GestureRecognition-clean/scripts/pretrain/pretrain_supLP120.py", line 133, in build_dataset
+    base_dataset = UnifiedNTUDataset(data_path=DATA_PATH, mode="supervised")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ptimilsina/projects/DA_GestureRecognition-clean/src/data/ntu_loader.py", line 23, in __init__
+    with open(json_path, 'r') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/ptimilsina/projects/DA_GestureRecognition-clean/src/data/action_names.json'

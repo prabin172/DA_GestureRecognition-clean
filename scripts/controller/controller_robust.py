@@ -27,16 +27,11 @@ import pandas as pd
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 RUNDIRS = ["trained_models/LOSO-fullTrainCalibrate-v2",
            "trained_models/LOSO-fullTrainCalibrate-v2-seed43",
-           "trained_models/LOSO-fullTrainCalibrate-v2-seed44",
-           # T2.2 stage 5 (tasks.md): supcon posteriors live in separate dirs (isolated runs,
-           # same deterministic splits -> pool/pair validly with the dirs above by (seed,subject,k)).
-           "trained_models/LOSO-fullTrainCalibrate-v2-supcon-seed42",
-           "trained_models/LOSO-fullTrainCalibrate-v2-supcon-seed43",
-           "trained_models/LOSO-fullTrainCalibrate-v2-supcon-seed44"]
+           "trained_models/LOSO-fullTrainCalibrate-v2-seed44"]
 OUT = os.path.join(ROOT, "trained_models/Phase3-controller/robust")
-# NOTE (tasks.md T2.1): supcon added 2026-07-09, AFTER its posteriors exist (T2.2 stage 3 runs
-# before this script in the follow-on chain). Do not run this script manually before then --
-# it will crash (empty arrays) if supcon posterior CSVs are missing from the dirs above.
+# Clean rerun (DA_GestureRecognition-clean, 2026-07-13): all 5 methods including supcon are
+# trained together in each seed dir from the start (scripts/orchestration/02_main_loso.sh) --
+# no incremental "-supcon-seed*" patch dirs needed, unlike the original repo's history.
 METHODS = ["scratch", "mae", "supMAE", "supLP120", "supcon"]
 
 PRIMS = ["next", "previous", "approach", "grasp", "release", "confirm", "cancel"]

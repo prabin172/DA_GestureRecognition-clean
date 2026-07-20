@@ -16,7 +16,11 @@ This is a clean, from-scratch reproducibility rerun of [`RTHMLab/DA_GestureRecog
 - `migration/` — provenance record of what data was copied from the original repo (checksums for irreplaceable items, frozen dependency versions, environment info).
 
 ## Setup
+Currently `.venv` is a **symlink to the original repo's virtualenv** (same machine, avoids a
+redundant multi-GB torch/cuda reinstall). If this repo is ever moved off this machine or needs
+to be independent, build a real one from the frozen snapshot instead:
 ```
+rm .venv   # remove the symlink first
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```

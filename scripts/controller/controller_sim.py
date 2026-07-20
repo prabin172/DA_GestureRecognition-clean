@@ -25,7 +25,7 @@ RUNDIRS = [
     "trained_models/LOSO-fullTrainCalibrate-v2-seed44",
 ]
 OUT = os.path.join(ROOT, "trained_models/Phase3-controller")
-METHODS = ["scratch", "mae", "supMAE", "supLP120"]
+METHODS = ["scratch", "mae", "supMAE", "supLP120", "supcon"]
 
 # ---- cost model (time units; asymmetric so errors compound) ----
 T_EXEC     = 1.0   # one gesture attempt
@@ -197,7 +197,7 @@ def main():
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     colors = {"scratch": "tab:gray", "mae": "tab:green",
-              "supMAE": "tab:orange", "supLP120": "tab:blue"}
+              "supMAE": "tab:orange", "supLP120": "tab:blue", "supcon": "tab:red"}
 
     fig, axes = plt.subplots(1, 2, figsize=(13, 4.5))
     for ax, k in zip(axes, [1, 3]):

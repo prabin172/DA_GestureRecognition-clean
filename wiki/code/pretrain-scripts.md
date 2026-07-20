@@ -19,7 +19,7 @@ Implement the [[pretraining-objectives]]; checkpoints land per [[ntu-pretraining
 | `pretrain_sourceTargetSupervisedDANN_twoHeads.py` | two-head DANN (source + target classifiers) |
 | `pretrain_kshot_DANN_diagnostics.py` | DANN k/λ ablation |
 | `pretrain_targetOnly.py` | encoder on Xsens only, no NTU |
-| root `temp_pretrain_supcon_ntu.py` | SupCon (Khosla 2020) on NTU → `trained_models/ContrastiveNTU/` |
+| root `scripts/pretrain/pretrain_supcon.py` | SupCon (Khosla 2020) on NTU → `trained_models/ContrastiveNTU/` |
 | root `temp_pretrain_supervised_ntu.py` | supervised NTU variant |
 
 DANN details in [[dann-experiments]]; cleaned-source pretraining runs in [[cleaned-source-pretraining]].

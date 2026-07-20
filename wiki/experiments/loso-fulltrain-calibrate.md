@@ -6,7 +6,7 @@ updated: 2026-07-04
 
 # LOSO full-train + calibrate (the main experiment)
 
-**Protocol** ([[loso-protocol]]): init encoder (NTU-pretrained per [[ntu-pretraining]], or scratch) → full fine-tune ~80 ep on the 4 non-held-out subjects → head-only calibration with k shots of the held-out subject → `final_acc` on that subject. Script: `temp_loso_fulltrain_calibration.py`. Single seed, deterministic per subject/tag/k — violates the A3 stats policy ([[publishability-review]] item 7).
+**Protocol** ([[loso-protocol]]): init encoder (NTU-pretrained per [[ntu-pretraining]], or scratch) → full fine-tune ~80 ep on the 4 non-held-out subjects → head-only calibration with k shots of the held-out subject → `final_acc` on that subject. Script: `scripts/main_experiment/loso_fulltrain_calibration.py`. Single seed, deterministic per subject/tag/k — violates the A3 stats policy ([[publishability-review]] item 7).
 
 ## Local mode — `trained_models/LOSO-fullTrainCalibrate/` (2026-06-29, 175 rows incl. dann/supcon)
 Mean final_acc over 5 subjects:

@@ -1,8 +1,10 @@
 ---
 type: result
 status: active
-updated: 2026-07-10
+updated: 2026-07-20
 ---
+
+**2026-07-20: 3-seed extension (seeds 43/44) launched** (`scripts/orchestration/09b_czu_cold_start_multiseed.sh`), in progress as of this writing — was single-seed only before. The table below is still the seed-42-only numbers; will be updated with the pooled 3-seed version once the run completes. This was the last remaining single-seed load-bearing result in the paper (see `SESSION_HANDOFF.md` and `paper/paper_results.md` R6c).
 
 # CZU-dual cold-start subject-scaling (T5) — does A2's cold-start lever survive on a strong target?
 
@@ -13,7 +15,7 @@ deployment claim. That result was established only on Xsens, a weak/moderate tar
 target once fully trained (N=4-equivalent). This page asks the missing question: **does the
 cold-start advantage itself survive on a strong target, or is R4c's lever also representation-poverty-contingent?**
 
-- Run: `--n-train-subjects` added to `temp_czu_dualbranch.py` (same N=0-short-circuits-to-pretrained-init
+- Run: `--n-train-subjects` added to `scripts/external/czu/dualbranch.py` (same N=0-short-circuits-to-pretrained-init
   pattern as the main A2 harness). Sweep N=0..3, priors {scratch, supLP120, supMAE}, seed 42 only,
   5-subj LOSO → `trained_models/CZU-DUAL-subjectScaling/N{0..3}/dual_<prior>/summary.csv`.
 - Single-seed (n=5 folds/cell) — a 3-seed extension is queued in `tasks.md` T1/T5 follow-on but not

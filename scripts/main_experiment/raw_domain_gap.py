@@ -26,6 +26,7 @@ Outputs -> trained_models/RawDomainGap/
 """
 import argparse
 import itertools
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -38,9 +39,11 @@ from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
 
-from scripts.external.czu.crc_baseline import clip_features
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from scripts.external.czu.crc_baseline import clip_features  # noqa: E402
+
 MIN_FRAMES = 8
 N_SAMPLES = 1000
 PCA_DIM = 50

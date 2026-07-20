@@ -1,0 +1,8 @@
+gesture,primitive,recall_k3
+bow,grasp,0.9984
+squat,release,0.9967
+wave,confirm,0.964
+crossarms,approach,0.9597
+crosstoe,cancel,0.9452
+sit,next,0.9436
+pushchair,previous,0.9205

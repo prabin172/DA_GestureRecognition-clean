@@ -11,7 +11,7 @@ The chosen answer to "why did swing widen the gap, and how do we actually reduce
 ## Why (the A→B chain)
 - **NTU quats are position-derived** ([[lrq]]): `get_bone_quaternion` (`src/data/ntu_parser.py:48`) builds each bone as a **shortest-arc** rotation from an N-pose reference to the observed bone vector → inherently **twist-free** (positions cannot encode segment roll).
 - **v1 Xsens quats are measured orientation** (mvnx/xlsx), which *carry* real axial twist. [[swing-mode]] tried to erase that twist post-hoc with a fixed-axis swing-twist strip — a lossy, pose-dependent distortion that is **not** the same object as NTU's clean swing-only orientation.
-- **Test A (symmetric swing)** confirmed the diagnosis: swing-projecting NTU too (`temp_mmd_domain_gap_symmetric.py`) barely moved NTU and left the gap ~3× wider than local (see table). So the gap increase was not the asymmetry — it was twist-stripping damaging Xsens.
+- **Test A (symmetric swing)** confirmed the diagnosis: swing-projecting NTU too (`mmd_domain_gap_symmetric.py (dead, not in this repo)`) barely moved NTU and left the gap ~3× wider than local (see table). So the gap increase was not the asymmetry — it was twist-stripping damaging Xsens.
 - **B (this page):** rebuild Xsens the way NTU is built — from **positions**, through NTU's own `get_bone_quaternion` → both domains share one construction (intrinsic per-frame zero-twist, same reference).
 
 ## Result — MMD² NTU↔Xsens (n=500, local NTU)

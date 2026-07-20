@@ -6,7 +6,7 @@ updated: 2026-07-03
 
 # Downstream & analysis scripts (`src/scripts/downstream/`, `analysis/`)
 
-Evaluation paradigm: [[loso-protocol|k-shot LOSO]]. The *current main* evaluation scripts are root-level temp scripts ([[temp-scripts]], esp. `temp_loso_fulltrain_calibration.py`); these `src/` scripts are the earlier generation ([[early-experiments]]).
+Evaluation paradigm: [[loso-protocol|k-shot LOSO]]. The *current main* evaluation scripts are root-level temp scripts ([[temp-scripts]], esp. `scripts/main_experiment/loso_fulltrain_calibration.py`); these `src/` scripts are the earlier generation ([[early-experiments]]).
 
 | script | purpose |
 |---|---|

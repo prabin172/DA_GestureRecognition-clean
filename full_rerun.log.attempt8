@@ -1,0 +1,1167 @@
+===== FULL RERUN START Wed Jul 15 01:21:03 PM CDT 2026 =====
+===== STAGE 8: CONTROLLER START Wed Jul 15 01:21:03 PM CDT 2026 =====
+----- [1/2] prototype (single fixed config, illustrative headline number) -----
+Gesture->primitive mapping (by pooled k=3 recall):
+  gesture primitive  recall_k3
+      bow     grasp     0.9984
+    squat   release     0.9967
+     wave   confirm     0.9640
+crossarms  approach     0.9597
+ crosstoe    cancel     0.9452
+      sit      next     0.9436
+pushchair  previous     0.9205
+  done scratch k=1
+  done scratch k=3
+  done mae k=1
+  done mae k=3
+  done supMAE k=1
+  done supMAE k=3
+  done supLP120 k=1
+  done supLP120 k=3
+  done supcon k=1
+  done supcon k=3
+
+Operating point tau=0.9:
+  method  k  task_success  mean_time  rejection_rate  corrective_per_mission  false_activation_rate
+ scratch  1      0.932000  17.153433        0.274929                0.233667               0.019662
+ scratch  3      0.997333  15.997995        0.214123                0.248333               0.008013
+     mae  1      0.941000  17.431456        0.247649                0.497667               0.010474
+     mae  3      0.967333  16.463129        0.262668                0.127333               0.006811
+  supMAE  1      0.998333  16.084140        0.185734                0.452000               0.019294
+  supMAE  3      0.999333  14.259506        0.139605                0.105333               0.005208
+supLP120  1      0.921333  15.811505        0.167336                0.458000               0.016906
+supLP120  3      0.979667  13.474311        0.091299                0.089000               0.002003
+  supcon  1      0.998667  14.801068        0.141995                0.274000               0.020764
+  supcon  3      0.993667  13.724254        0.109013                0.085667               0.003806
+
+Wrote -> /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/Phase3-controller
+----- [2/2] robustness protocol (120 vocabs x 2 outcome models x tuning-free op point) -----
+Illustrative (reliability-ordered) vocabulary:
+  next      <- sit
+  previous  <- pushchair
+  approach  <- crossarms
+  grasp     <- bow
+  release   <- squat
+  confirm   <- wave
+  cancel    <- crosstoe
+  vocab sweep 20/120
+  vocab sweep 40/120
+  vocab sweep 60/120
+  vocab sweep 80/120
+  vocab sweep 100/120
+  vocab sweep 120/120
+
+LOCK1 ordering — fraction of vocabularies where row-method >= col-method (hard_success):
+  k=1 tau=0.0:
+b         scratch     mae  supMAE  supLP120  supcon
+a                                                  
+scratch       NaN  0.8083  0.5333    0.6500  0.4667
+mae        0.1917     NaN  0.1500    0.4083  0.1333
+supMAE     0.4750  0.8583     NaN    0.6417  0.4833
+supLP120   0.3500  0.5917  0.3667       NaN  0.2667
+supcon     0.5500  0.8667  0.5167    0.7417     NaN
+  k=1 tau=0.9:
+b         scratch     mae  supMAE  supLP120  supcon
+a                                                  
+scratch       NaN  0.7417  0.4583    0.5583  0.3583
+mae        0.2583     NaN  0.2250    0.3417  0.1667
+supMAE     0.5500  0.7833     NaN    0.5083  0.3417
+supLP120   0.4500  0.6667  0.4917       NaN  0.3250
+supcon     0.6417  0.8333  0.6583    0.6750     NaN
+  k=3 tau=0.0:
+b         scratch     mae  supMAE  supLP120  supcon
+a                                                  
+scratch       NaN  0.6333  0.2000    0.2917  0.3167
+mae        0.3750     NaN  0.0750    0.1500  0.1667
+supMAE     0.8000  0.9417     NaN    0.5083  0.5583
+supLP120   0.7083  0.8500  0.4917       NaN  0.5750
+supcon     0.6917  0.8333  0.4667    0.4250     NaN
+  k=3 tau=0.9:
+b         scratch     mae  supMAE  supLP120  supcon
+a                                                  
+scratch       NaN  0.6917  0.3417    0.2250  0.2000
+mae        0.3167     NaN  0.1583    0.0417  0.0500
+supMAE     0.6583  0.8500     NaN    0.3250  0.2583
+supLP120   0.7750  0.9583  0.6750       NaN  0.3833
+supcon     0.8000  0.9583  0.7417    0.6333     NaN
+
+LOCK3 iso-safety (smallest tau with false-activation <= budget):
+  method  k  budget  tau_star  task_success  mean_cost  false_activation
+ scratch  1   0.010      0.99        0.6393     19.323           0.00882
+     mae  1   0.010      0.93        0.9200     19.306           0.00827
+  supMAE  1   0.010      0.99        0.8287     20.289           0.00643
+supLP120  1   0.010      0.97        0.9433     18.255           0.00919
+  supcon  1   0.010      0.99        0.8583     17.933           0.00772
+ scratch  3   0.010      0.85        0.9953     15.220           0.00881
+     mae  3   0.010      0.85        0.9870     15.126           0.00901
+  supMAE  3   0.010      0.70        0.9967     13.158           0.00861
+supLP120  3   0.010      0.70        0.9677     13.483           0.00641
+  supcon  3   0.010      0.70        0.9860     13.335           0.00741
+ scratch  1   0.005       NaN           NaN        NaN               NaN
+     mae  1   0.005      0.99        0.5377     20.626           0.00312
+  supMAE  1   0.005       NaN           NaN        NaN               NaN
+supLP120  1   0.005      0.99        0.8763     20.128           0.00441
+  supcon  1   0.005       NaN           NaN        NaN               NaN
+ scratch  3   0.005      0.97        0.8930     18.974           0.00361
+     mae  3   0.005      0.95        0.8253     17.501           0.00441
+  supMAE  3   0.005      0.93        0.9997     15.078           0.00441
+supLP120  3   0.005      0.80        0.9670     13.670           0.00421
+  supcon  3   0.005      0.90        0.9937     13.866           0.00381
+
+Wrote -> /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/Phase3-controller/robust
+===== STAGE 8 CONTROLLER DONE Wed Jul 15 01:24:04 PM CDT 2026 =====
+Locked output: trained_models/Phase3-controller/robust/ -- do not overwrite in any later run.
+===== STAGE 9: CZU-DUAL COLD-START START Wed Jul 15 01:24:04 PM CDT 2026 =====
+----- N=0 (Wed Jul 15 01:24:04 PM CDT 2026) -----
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+CONFIG mode=dual seed=42 out_root=trained_models/CZU-DUAL-subjectScaling/N0 raw_dir=/home/ptimilsina/projects/DA_GestureRecognition-clean/Data_Processed/czu_imu_raw raw_dim=60 n_train_subjects=0
+  [T5] subj=cx N=0 finetune_subjects=[] clips=0
+  BASE subj=cx mode=dual prior=scratch N=0 (no finetune, pretrained init)
+  SUMMARY cx dual/scratch k=0 acc=2.45
+  SUMMARY cx dual/scratch k=1 acc=40.53
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY cx dual/scratch k=3 acc=53.64
+  [T5] subj=cyy N=0 finetune_subjects=[] clips=0
+  BASE subj=cyy mode=dual prior=scratch N=0 (no finetune, pretrained init)
+  SUMMARY cyy dual/scratch k=0 acc=2.27
+  SUMMARY cyy dual/scratch k=1 acc=45.96
+  SUMMARY cyy dual/scratch k=3 acc=57.79
+  [T5] subj=myj N=0 finetune_subjects=[] clips=0
+  BASE subj=myj mode=dual prior=scratch N=0 (no finetune, pretrained init)
+  SUMMARY myj dual/scratch k=0 acc=4.55
+  SUMMARY myj dual/scratch k=1 acc=35.35
+  SUMMARY myj dual/scratch k=3 acc=52.60
+  [T5] subj=qyh N=0 finetune_subjects=[] clips=0
+  BASE subj=qyh mode=dual prior=scratch N=0 (no finetune, pretrained init)
+  SUMMARY qyh dual/scratch k=0 acc=2.07
+  SUMMARY qyh dual/scratch k=1 acc=31.96
+  SUMMARY qyh dual/scratch k=3 acc=38.86
+  [T5] subj=zyh N=0 finetune_subjects=[] clips=0
+  BASE subj=zyh mode=dual prior=scratch N=0 (no finetune, pretrained init)
+  SUMMARY zyh dual/scratch k=0 acc=3.03
+  SUMMARY zyh dual/scratch k=1 acc=40.91
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/scratch k=3 acc=68.18
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N0/dual_scratch/summary.csv
+  [T5] subj=cx N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=cx mode=dual prior=supLP120 N=0 (no finetune, pretrained init)
+  SUMMARY cx dual/supLP120 k=0 acc=4.20
+  SUMMARY cx dual/supLP120 k=1 acc=43.56
+  SUMMARY cx dual/supLP120 k=3 acc=50.45
+  [T5] subj=cyy N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=cyy mode=dual prior=supLP120 N=0 (no finetune, pretrained init)
+  SUMMARY cyy dual/supLP120 k=0 acc=3.64
+  SUMMARY cyy dual/supLP120 k=1 acc=39.90
+  SUMMARY cyy dual/supLP120 k=3 acc=60.39
+  [T5] subj=myj N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=myj mode=dual prior=supLP120 N=0 (no finetune, pretrained init)
+  SUMMARY myj dual/supLP120 k=0 acc=4.09
+  SUMMARY myj dual/supLP120 k=1 acc=24.75
+  SUMMARY myj dual/supLP120 k=3 acc=54.55
+  [T5] subj=qyh N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=qyh mode=dual prior=supLP120 N=0 (no finetune, pretrained init)
+  SUMMARY qyh dual/supLP120 k=0 acc=5.81
+  SUMMARY qyh dual/supLP120 k=1 acc=34.25
+  SUMMARY qyh dual/supLP120 k=3 acc=46.29
+  [T5] subj=zyh N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=zyh mode=dual prior=supLP120 N=0 (no finetune, pretrained init)
+  SUMMARY zyh dual/supLP120 k=0 acc=3.03
+  SUMMARY zyh dual/supLP120 k=1 acc=39.20
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/supLP120 k=3 acc=66.67
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N0/dual_supLP120/summary.csv
+  [T5] subj=cx N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=cx mode=dual prior=supMAE N=0 (no finetune, pretrained init)
+  SUMMARY cx dual/supMAE k=0 acc=3.15
+  SUMMARY cx dual/supMAE k=1 acc=38.64
+  SUMMARY cx dual/supMAE k=3 acc=45.91
+  [T5] subj=cyy N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=cyy mode=dual prior=supMAE N=0 (no finetune, pretrained init)
+  SUMMARY cyy dual/supMAE k=0 acc=5.45
+  SUMMARY cyy dual/supMAE k=1 acc=33.84
+  SUMMARY cyy dual/supMAE k=3 acc=56.49
+  [T5] subj=myj N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=myj mode=dual prior=supMAE N=0 (no finetune, pretrained init)
+  SUMMARY myj dual/supMAE k=0 acc=4.09
+  SUMMARY myj dual/supMAE k=1 acc=30.81
+  SUMMARY myj dual/supMAE k=3 acc=51.95
+  [T5] subj=qyh N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=qyh mode=dual prior=supMAE N=0 (no finetune, pretrained init)
+  SUMMARY qyh dual/supMAE k=0 acc=3.73
+  SUMMARY qyh dual/supMAE k=1 acc=26.94
+  SUMMARY qyh dual/supMAE k=3 acc=41.71
+  [T5] subj=zyh N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=zyh mode=dual prior=supMAE N=0 (no finetune, pretrained init)
+  SUMMARY zyh dual/supMAE k=0 acc=5.56
+  SUMMARY zyh dual/supMAE k=1 acc=37.50
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/supMAE k=3 acc=67.42
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N0/dual_supMAE/summary.csv
+  [T5] subj=cx N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=cx mode=dual prior=mae N=0 (no finetune, pretrained init)
+  SUMMARY cx dual/mae k=0 acc=2.80
+  SUMMARY cx dual/mae k=1 acc=39.77
+  SUMMARY cx dual/mae k=3 acc=46.36
+  [T5] subj=cyy N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=cyy mode=dual prior=mae N=0 (no finetune, pretrained init)
+  SUMMARY cyy dual/mae k=0 acc=2.27
+  SUMMARY cyy dual/mae k=1 acc=35.35
+  SUMMARY cyy dual/mae k=3 acc=54.55
+  [T5] subj=myj N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=myj mode=dual prior=mae N=0 (no finetune, pretrained init)
+  SUMMARY myj dual/mae k=0 acc=2.27
+  SUMMARY myj dual/mae k=1 acc=28.28
+  SUMMARY myj dual/mae k=3 acc=53.25
+  [T5] subj=qyh N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=qyh mode=dual prior=mae N=0 (no finetune, pretrained init)
+  SUMMARY qyh dual/mae k=0 acc=2.07
+  SUMMARY qyh dual/mae k=1 acc=29.68
+  SUMMARY qyh dual/mae k=3 acc=36.00
+  [T5] subj=zyh N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=zyh mode=dual prior=mae N=0 (no finetune, pretrained init)
+  SUMMARY zyh dual/mae k=0 acc=2.53
+  SUMMARY zyh dual/mae k=1 acc=36.36
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/mae k=3 acc=66.67
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N0/dual_mae/summary.csv
+  [T5] subj=cx N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=cx mode=dual prior=supcon N=0 (no finetune, pretrained init)
+  SUMMARY cx dual/supcon k=0 acc=4.20
+  SUMMARY cx dual/supcon k=1 acc=38.64
+  SUMMARY cx dual/supcon k=3 acc=50.91
+  [T5] subj=cyy N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=cyy mode=dual prior=supcon N=0 (no finetune, pretrained init)
+  SUMMARY cyy dual/supcon k=0 acc=2.27
+  SUMMARY cyy dual/supcon k=1 acc=38.89
+  SUMMARY cyy dual/supcon k=3 acc=59.09
+  [T5] subj=myj N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=myj mode=dual prior=supcon N=0 (no finetune, pretrained init)
+  SUMMARY myj dual/supcon k=0 acc=1.82
+  SUMMARY myj dual/supcon k=1 acc=25.25
+  SUMMARY myj dual/supcon k=3 acc=55.19
+  [T5] subj=qyh N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=qyh mode=dual prior=supcon N=0 (no finetune, pretrained init)
+  SUMMARY qyh dual/supcon k=0 acc=4.15
+  SUMMARY qyh dual/supcon k=1 acc=29.22
+  SUMMARY qyh dual/supcon k=3 acc=42.86
+  [T5] subj=zyh N=0 finetune_subjects=[] clips=0
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=zyh mode=dual prior=supcon N=0 (no finetune, pretrained init)
+  SUMMARY zyh dual/supcon k=0 acc=3.03
+  SUMMARY zyh dual/supcon k=1 acc=35.80
+  SUMMARY zyh dual/supcon k=3 acc=65.15
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N0/dual_supcon/summary.csv
+----- N=1 (Wed Jul 15 01:32:26 PM CDT 2026) -----
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+CONFIG mode=dual seed=42 out_root=trained_models/CZU-DUAL-subjectScaling/N1 raw_dir=/home/ptimilsina/projects/DA_GestureRecognition-clean/Data_Processed/czu_imu_raw raw_dim=60 n_train_subjects=1
+  [T5] subj=cx N=1 finetune_subjects=['cyy'] clips=220
+  BASE subj=cx mode=dual prior=scratch train=176 val=44
+    ep001 loss=3.111 val=45.45 best=45.45
+    ep020 loss=0.007 val=75.00 best=77.27
+    ep040 loss=0.001 val=81.82 best=84.09
+    ep060 loss=0.000 val=81.82 best=84.09
+    ep080 loss=0.000 val=81.82 best=84.09
+  SUMMARY cx dual/scratch k=0 acc=63.29
+  SUMMARY cx dual/scratch k=1 acc=68.56
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY cx dual/scratch k=3 acc=78.18
+  [T5] subj=cyy N=1 finetune_subjects=['cx'] clips=286
+  BASE subj=cyy mode=dual prior=scratch train=220 val=66
+    ep001 loss=3.230 val=51.52 best=51.52
+    ep020 loss=0.002 val=90.91 best=90.91
+    ep040 loss=0.001 val=92.42 best=92.42
+    ep060 loss=0.000 val=93.94 best=93.94
+    ep080 loss=0.000 val=93.94 best=93.94
+  SUMMARY cyy dual/scratch k=0 acc=67.27
+  SUMMARY cyy dual/scratch k=1 acc=73.23
+  SUMMARY cyy dual/scratch k=3 acc=78.57
+  [T5] subj=myj N=1 finetune_subjects=['cx'] clips=286
+  BASE subj=myj mode=dual prior=scratch train=220 val=66
+    ep001 loss=3.230 val=51.52 best=51.52
+    ep020 loss=0.002 val=90.91 best=90.91
+    ep040 loss=0.001 val=92.42 best=92.42
+    ep060 loss=0.000 val=93.94 best=93.94
+    ep080 loss=0.000 val=93.94 best=93.94
+  SUMMARY myj dual/scratch k=0 acc=60.00
+  SUMMARY myj dual/scratch k=1 acc=65.66
+  SUMMARY myj dual/scratch k=3 acc=72.73
+  [T5] subj=qyh N=1 finetune_subjects=['cx'] clips=286
+  BASE subj=qyh mode=dual prior=scratch train=220 val=66
+    ep001 loss=3.230 val=51.52 best=51.52
+    ep020 loss=0.002 val=90.91 best=90.91
+    ep040 loss=0.001 val=92.42 best=92.42
+    ep060 loss=0.000 val=93.94 best=93.94
+    ep080 loss=0.000 val=93.94 best=93.94
+  SUMMARY qyh dual/scratch k=0 acc=58.51
+  SUMMARY qyh dual/scratch k=1 acc=68.04
+  SUMMARY qyh dual/scratch k=3 acc=78.29
+  [T5] subj=zyh N=1 finetune_subjects=['cx'] clips=286
+  BASE subj=zyh mode=dual prior=scratch train=220 val=66
+    ep001 loss=3.230 val=51.52 best=51.52
+    ep020 loss=0.002 val=90.91 best=90.91
+    ep040 loss=0.001 val=92.42 best=92.42
+    ep060 loss=0.000 val=93.94 best=93.94
+    ep080 loss=0.000 val=93.94 best=93.94
+  SUMMARY zyh dual/scratch k=0 acc=74.24
+  SUMMARY zyh dual/scratch k=1 acc=79.55
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/scratch k=3 acc=90.15
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N1/dual_scratch/summary.csv
+  [T5] subj=cx N=1 finetune_subjects=['cyy'] clips=220
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=cx mode=dual prior=supLP120 train=176 val=44
+    ep001 loss=3.041 val=40.91 best=40.91
+    ep020 loss=0.002 val=84.09 best=84.09
+    ep040 loss=0.000 val=86.36 best=86.36
+    ep060 loss=0.000 val=86.36 best=86.36
+    ep080 loss=0.000 val=86.36 best=86.36
+  SUMMARY cx dual/supLP120 k=0 acc=60.14
+  SUMMARY cx dual/supLP120 k=1 acc=64.02
+  SUMMARY cx dual/supLP120 k=3 acc=72.73
+  [T5] subj=cyy N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=cyy mode=dual prior=supLP120 train=220 val=66
+    ep001 loss=3.130 val=50.00 best=50.00
+    ep020 loss=0.001 val=86.36 best=86.36
+    ep040 loss=0.000 val=87.88 best=87.88
+    ep060 loss=0.000 val=87.88 best=87.88
+    ep080 loss=0.000 val=87.88 best=87.88
+  SUMMARY cyy dual/supLP120 k=0 acc=65.00
+  SUMMARY cyy dual/supLP120 k=1 acc=61.11
+  SUMMARY cyy dual/supLP120 k=3 acc=78.57
+  [T5] subj=myj N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=myj mode=dual prior=supLP120 train=220 val=66
+    ep001 loss=3.130 val=50.00 best=50.00
+    ep020 loss=0.001 val=86.36 best=86.36
+    ep040 loss=0.000 val=87.88 best=87.88
+    ep060 loss=0.000 val=87.88 best=87.88
+    ep080 loss=0.000 val=87.88 best=87.88
+  SUMMARY myj dual/supLP120 k=0 acc=57.27
+  SUMMARY myj dual/supLP120 k=1 acc=61.11
+  SUMMARY myj dual/supLP120 k=3 acc=68.18
+  [T5] subj=qyh N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=qyh mode=dual prior=supLP120 train=220 val=66
+    ep001 loss=3.130 val=50.00 best=50.00
+    ep020 loss=0.001 val=86.36 best=86.36
+    ep040 loss=0.000 val=87.88 best=87.88
+    ep060 loss=0.000 val=87.88 best=87.88
+    ep080 loss=0.000 val=87.88 best=87.88
+  SUMMARY qyh dual/supLP120 k=0 acc=59.34
+  SUMMARY qyh dual/supLP120 k=1 acc=72.60
+  SUMMARY qyh dual/supLP120 k=3 acc=77.71
+  [T5] subj=zyh N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=zyh mode=dual prior=supLP120 train=220 val=66
+    ep001 loss=3.130 val=50.00 best=50.00
+    ep020 loss=0.001 val=86.36 best=86.36
+    ep040 loss=0.000 val=87.88 best=87.88
+    ep060 loss=0.000 val=87.88 best=87.88
+    ep080 loss=0.000 val=87.88 best=87.88
+  SUMMARY zyh dual/supLP120 k=0 acc=72.22
+  SUMMARY zyh dual/supLP120 k=1 acc=80.11
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/supLP120 k=3 acc=87.88
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N1/dual_supLP120/summary.csv
+  [T5] subj=cx N=1 finetune_subjects=['cyy'] clips=220
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=cx mode=dual prior=supMAE train=176 val=44
+    ep001 loss=3.132 val=31.82 best=31.82
+    ep020 loss=0.004 val=75.00 best=77.27
+    ep040 loss=0.001 val=81.82 best=81.82
+    ep060 loss=0.000 val=81.82 best=81.82
+    ep080 loss=0.000 val=81.82 best=81.82
+  SUMMARY cx dual/supMAE k=0 acc=61.89
+  SUMMARY cx dual/supMAE k=1 acc=65.53
+  SUMMARY cx dual/supMAE k=3 acc=77.27
+  [T5] subj=cyy N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=cyy mode=dual prior=supMAE train=220 val=66
+    ep001 loss=3.131 val=39.39 best=39.39
+    ep020 loss=0.002 val=84.85 best=84.85
+    ep040 loss=0.001 val=87.88 best=89.39
+    ep060 loss=0.000 val=89.39 best=89.39
+    ep080 loss=0.000 val=89.39 best=89.39
+  SUMMARY cyy dual/supMAE k=0 acc=67.27
+  SUMMARY cyy dual/supMAE k=1 acc=67.17
+  SUMMARY cyy dual/supMAE k=3 acc=78.57
+  [T5] subj=myj N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=myj mode=dual prior=supMAE train=220 val=66
+    ep001 loss=3.131 val=39.39 best=39.39
+    ep020 loss=0.002 val=84.85 best=84.85
+    ep040 loss=0.001 val=87.88 best=89.39
+    ep060 loss=0.000 val=89.39 best=89.39
+    ep080 loss=0.000 val=89.39 best=89.39
+  SUMMARY myj dual/supMAE k=0 acc=60.00
+  SUMMARY myj dual/supMAE k=1 acc=64.65
+  SUMMARY myj dual/supMAE k=3 acc=69.48
+  [T5] subj=qyh N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=qyh mode=dual prior=supMAE train=220 val=66
+    ep001 loss=3.131 val=39.39 best=39.39
+    ep020 loss=0.002 val=84.85 best=84.85
+    ep040 loss=0.001 val=87.88 best=89.39
+    ep060 loss=0.000 val=89.39 best=89.39
+    ep080 loss=0.000 val=89.39 best=89.39
+  SUMMARY qyh dual/supMAE k=0 acc=59.75
+  SUMMARY qyh dual/supMAE k=1 acc=67.12
+  SUMMARY qyh dual/supMAE k=3 acc=77.14
+  [T5] subj=zyh N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=zyh mode=dual prior=supMAE train=220 val=66
+    ep001 loss=3.131 val=39.39 best=39.39
+    ep020 loss=0.002 val=84.85 best=84.85
+    ep040 loss=0.001 val=87.88 best=89.39
+    ep060 loss=0.000 val=89.39 best=89.39
+    ep080 loss=0.000 val=89.39 best=89.39
+  SUMMARY zyh dual/supMAE k=0 acc=72.73
+  SUMMARY zyh dual/supMAE k=1 acc=75.00
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/supMAE k=3 acc=87.88
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N1/dual_supMAE/summary.csv
+  [T5] subj=cx N=1 finetune_subjects=['cyy'] clips=220
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=cx mode=dual prior=mae train=176 val=44
+    ep001 loss=3.153 val=43.18 best=43.18
+    ep020 loss=0.003 val=86.36 best=86.36
+    ep040 loss=0.001 val=84.09 best=86.36
+    ep060 loss=0.000 val=84.09 best=86.36
+    ep080 loss=0.000 val=84.09 best=86.36
+  SUMMARY cx dual/mae k=0 acc=62.59
+  SUMMARY cx dual/mae k=1 acc=66.29
+  SUMMARY cx dual/mae k=3 acc=75.91
+  [T5] subj=cyy N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=cyy mode=dual prior=mae train=220 val=66
+    ep001 loss=3.161 val=43.94 best=43.94
+    ep020 loss=0.001 val=89.39 best=89.39
+    ep040 loss=0.000 val=92.42 best=93.94
+    ep060 loss=0.000 val=92.42 best=93.94
+    ep080 loss=0.000 val=92.42 best=93.94
+  SUMMARY cyy dual/mae k=0 acc=69.09
+  SUMMARY cyy dual/mae k=1 acc=69.70
+  SUMMARY cyy dual/mae k=3 acc=79.22
+  [T5] subj=myj N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=myj mode=dual prior=mae train=220 val=66
+    ep001 loss=3.161 val=43.94 best=43.94
+    ep020 loss=0.001 val=89.39 best=89.39
+    ep040 loss=0.000 val=92.42 best=93.94
+    ep060 loss=0.000 val=92.42 best=93.94
+    ep080 loss=0.000 val=92.42 best=93.94
+  SUMMARY myj dual/mae k=0 acc=61.82
+  SUMMARY myj dual/mae k=1 acc=67.68
+  SUMMARY myj dual/mae k=3 acc=73.38
+  [T5] subj=qyh N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=qyh mode=dual prior=mae train=220 val=66
+    ep001 loss=3.161 val=43.94 best=43.94
+    ep020 loss=0.001 val=89.39 best=89.39
+    ep040 loss=0.000 val=92.42 best=93.94
+    ep060 loss=0.000 val=92.42 best=93.94
+    ep080 loss=0.000 val=92.42 best=93.94
+  SUMMARY qyh dual/mae k=0 acc=61.00
+  SUMMARY qyh dual/mae k=1 acc=67.58
+  SUMMARY qyh dual/mae k=3 acc=72.57
+  [T5] subj=zyh N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=zyh mode=dual prior=mae train=220 val=66
+    ep001 loss=3.161 val=43.94 best=43.94
+    ep020 loss=0.001 val=89.39 best=89.39
+    ep040 loss=0.000 val=92.42 best=93.94
+    ep060 loss=0.000 val=92.42 best=93.94
+    ep080 loss=0.000 val=92.42 best=93.94
+  SUMMARY zyh dual/mae k=0 acc=73.74
+  SUMMARY zyh dual/mae k=1 acc=80.68
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/mae k=3 acc=89.39
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N1/dual_mae/summary.csv
+  [T5] subj=cx N=1 finetune_subjects=['cyy'] clips=220
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=cx mode=dual prior=supcon train=176 val=44
+    ep001 loss=3.068 val=45.45 best=45.45
+    ep020 loss=0.002 val=84.09 best=84.09
+    ep040 loss=0.000 val=81.82 best=84.09
+    ep060 loss=0.000 val=81.82 best=84.09
+    ep080 loss=0.000 val=81.82 best=84.09
+  SUMMARY cx dual/supcon k=0 acc=62.94
+  SUMMARY cx dual/supcon k=1 acc=64.77
+  SUMMARY cx dual/supcon k=3 acc=75.91
+  [T5] subj=cyy N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=cyy mode=dual prior=supcon train=220 val=66
+    ep001 loss=3.216 val=48.48 best=48.48
+    ep020 loss=0.001 val=90.91 best=90.91
+    ep040 loss=0.000 val=86.36 best=90.91
+    ep060 loss=0.000 val=87.88 best=90.91
+    ep080 loss=0.000 val=87.88 best=90.91
+  SUMMARY cyy dual/supcon k=0 acc=69.55
+  SUMMARY cyy dual/supcon k=1 acc=63.13
+  SUMMARY cyy dual/supcon k=3 acc=78.57
+  [T5] subj=myj N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=myj mode=dual prior=supcon train=220 val=66
+    ep001 loss=3.216 val=48.48 best=48.48
+    ep020 loss=0.001 val=90.91 best=90.91
+    ep040 loss=0.000 val=86.36 best=90.91
+    ep060 loss=0.000 val=87.88 best=90.91
+    ep080 loss=0.000 val=87.88 best=90.91
+  SUMMARY myj dual/supcon k=0 acc=58.64
+  SUMMARY myj dual/supcon k=1 acc=62.63
+  SUMMARY myj dual/supcon k=3 acc=70.78
+  [T5] subj=qyh N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=qyh mode=dual prior=supcon train=220 val=66
+    ep001 loss=3.216 val=48.48 best=48.48
+    ep020 loss=0.001 val=90.91 best=90.91
+    ep040 loss=0.000 val=86.36 best=90.91
+    ep060 loss=0.000 val=87.88 best=90.91
+    ep080 loss=0.000 val=87.88 best=90.91
+  SUMMARY qyh dual/supcon k=0 acc=58.92
+  SUMMARY qyh dual/supcon k=1 acc=73.52
+  SUMMARY qyh dual/supcon k=3 acc=76.57
+  [T5] subj=zyh N=1 finetune_subjects=['cx'] clips=286
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=zyh mode=dual prior=supcon train=220 val=66
+    ep001 loss=3.216 val=48.48 best=48.48
+    ep020 loss=0.001 val=90.91 best=90.91
+    ep040 loss=0.000 val=86.36 best=90.91
+    ep060 loss=0.000 val=87.88 best=90.91
+    ep080 loss=0.000 val=87.88 best=90.91
+  SUMMARY zyh dual/supcon k=0 acc=77.27
+  SUMMARY zyh dual/supcon k=1 acc=80.11
+  SUMMARY zyh dual/supcon k=3 acc=88.64
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N1/dual_supcon/summary.csv
+----- N=2 (Wed Jul 15 01:58:08 PM CDT 2026) -----
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+CONFIG mode=dual seed=42 out_root=trained_models/CZU-DUAL-subjectScaling/N2 raw_dir=/home/ptimilsina/projects/DA_GestureRecognition-clean/Data_Processed/czu_imu_raw raw_dim=60 n_train_subjects=2
+  [T5] subj=cx N=2 finetune_subjects=['cyy', 'myj'] clips=440
+  BASE subj=cx mode=dual prior=scratch train=352 val=88
+    ep001 loss=2.961 val=54.55 best=54.55
+    ep020 loss=0.003 val=96.59 best=96.59
+    ep040 loss=0.001 val=96.59 best=96.59
+    ep060 loss=0.001 val=96.59 best=96.59
+    ep080 loss=0.000 val=97.73 best=97.73
+  SUMMARY cx dual/scratch k=0 acc=76.22
+  SUMMARY cx dual/scratch k=1 acc=79.92
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY cx dual/scratch k=3 acc=85.91
+  [T5] subj=cyy N=2 finetune_subjects=['cx', 'myj'] clips=506
+  BASE subj=cyy mode=dual prior=scratch train=396 val=110
+    ep001 loss=2.774 val=47.27 best=47.27
+    ep020 loss=0.003 val=95.45 best=95.45
+    ep040 loss=0.001 val=95.45 best=95.45
+    ep060 loss=0.001 val=95.45 best=95.45
+    ep080 loss=0.000 val=96.36 best=96.36
+  SUMMARY cyy dual/scratch k=0 acc=71.82
+  SUMMARY cyy dual/scratch k=1 acc=82.32
+  SUMMARY cyy dual/scratch k=3 acc=84.42
+  [T5] subj=myj N=2 finetune_subjects=['cx', 'cyy'] clips=506
+  BASE subj=myj mode=dual prior=scratch train=396 val=110
+    ep001 loss=2.705 val=45.45 best=45.45
+    ep020 loss=0.003 val=93.64 best=94.55
+    ep040 loss=0.001 val=94.55 best=94.55
+    ep060 loss=0.001 val=95.45 best=95.45
+    ep080 loss=0.000 val=95.45 best=95.45
+  SUMMARY myj dual/scratch k=0 acc=59.09
+  SUMMARY myj dual/scratch k=1 acc=74.75
+  SUMMARY myj dual/scratch k=3 acc=77.92
+  [T5] subj=qyh N=2 finetune_subjects=['cx', 'cyy'] clips=506
+  BASE subj=qyh mode=dual prior=scratch train=396 val=110
+    ep001 loss=2.705 val=45.45 best=45.45
+    ep020 loss=0.003 val=93.64 best=94.55
+    ep040 loss=0.001 val=94.55 best=94.55
+    ep060 loss=0.001 val=95.45 best=95.45
+    ep080 loss=0.000 val=95.45 best=95.45
+  SUMMARY qyh dual/scratch k=0 acc=66.80
+  SUMMARY qyh dual/scratch k=1 acc=83.11
+  SUMMARY qyh dual/scratch k=3 acc=88.57
+  [T5] subj=zyh N=2 finetune_subjects=['cx', 'cyy'] clips=506
+  BASE subj=zyh mode=dual prior=scratch train=396 val=110
+    ep001 loss=2.705 val=45.45 best=45.45
+    ep020 loss=0.003 val=93.64 best=94.55
+    ep040 loss=0.001 val=94.55 best=94.55
+    ep060 loss=0.001 val=95.45 best=95.45
+    ep080 loss=0.000 val=95.45 best=95.45
+  SUMMARY zyh dual/scratch k=0 acc=90.40
+  SUMMARY zyh dual/scratch k=1 acc=89.20
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/scratch k=3 acc=95.45
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N2/dual_scratch/summary.csv
+  [T5] subj=cx N=2 finetune_subjects=['cyy', 'myj'] clips=440
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=cx mode=dual prior=supLP120 train=352 val=88
+    ep001 loss=2.914 val=50.00 best=50.00
+    ep020 loss=0.002 val=92.05 best=93.18
+    ep040 loss=0.001 val=93.18 best=94.32
+    ep060 loss=0.000 val=93.18 best=94.32
+    ep080 loss=0.000 val=93.18 best=94.32
+  SUMMARY cx dual/supLP120 k=0 acc=71.33
+  SUMMARY cx dual/supLP120 k=1 acc=73.11
+  SUMMARY cx dual/supLP120 k=3 acc=82.73
+  [T5] subj=cyy N=2 finetune_subjects=['cx', 'myj'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=cyy mode=dual prior=supLP120 train=396 val=110
+    ep001 loss=2.699 val=45.45 best=45.45
+    ep020 loss=0.002 val=90.91 best=93.64
+    ep040 loss=0.001 val=90.91 best=93.64
+    ep060 loss=0.000 val=91.82 best=93.64
+    ep080 loss=0.000 val=93.64 best=93.64
+  SUMMARY cyy dual/supLP120 k=0 acc=78.18
+  SUMMARY cyy dual/supLP120 k=1 acc=79.80
+  SUMMARY cyy dual/supLP120 k=3 acc=82.47
+  [T5] subj=myj N=2 finetune_subjects=['cx', 'cyy'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=myj mode=dual prior=supLP120 train=396 val=110
+    ep001 loss=2.558 val=49.09 best=49.09
+    ep020 loss=0.002 val=92.73 best=94.55
+    ep040 loss=0.001 val=92.73 best=94.55
+    ep060 loss=0.000 val=93.64 best=94.55
+    ep080 loss=0.000 val=94.55 best=94.55
+  SUMMARY myj dual/supLP120 k=0 acc=52.73
+  SUMMARY myj dual/supLP120 k=1 acc=64.14
+  SUMMARY myj dual/supLP120 k=3 acc=80.52
+  [T5] subj=qyh N=2 finetune_subjects=['cx', 'cyy'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=qyh mode=dual prior=supLP120 train=396 val=110
+    ep001 loss=2.558 val=49.09 best=49.09
+    ep020 loss=0.002 val=92.73 best=94.55
+    ep040 loss=0.001 val=92.73 best=94.55
+    ep060 loss=0.000 val=93.64 best=94.55
+    ep080 loss=0.000 val=94.55 best=94.55
+  SUMMARY qyh dual/supLP120 k=0 acc=62.66
+  SUMMARY qyh dual/supLP120 k=1 acc=74.89
+  SUMMARY qyh dual/supLP120 k=3 acc=83.43
+  [T5] subj=zyh N=2 finetune_subjects=['cx', 'cyy'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=zyh mode=dual prior=supLP120 train=396 val=110
+    ep001 loss=2.558 val=49.09 best=49.09
+    ep020 loss=0.002 val=92.73 best=94.55
+    ep040 loss=0.001 val=92.73 best=94.55
+    ep060 loss=0.000 val=93.64 best=94.55
+    ep080 loss=0.000 val=94.55 best=94.55
+  SUMMARY zyh dual/supLP120 k=0 acc=84.34
+  SUMMARY zyh dual/supLP120 k=1 acc=85.80
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/supLP120 k=3 acc=95.45
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N2/dual_supLP120/summary.csv
+  [T5] subj=cx N=2 finetune_subjects=['cyy', 'myj'] clips=440
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=cx mode=dual prior=supMAE train=352 val=88
+    ep001 loss=2.844 val=48.86 best=48.86
+    ep020 loss=0.002 val=95.45 best=95.45
+    ep040 loss=0.001 val=96.59 best=96.59
+    ep060 loss=0.000 val=97.73 best=97.73
+    ep080 loss=0.000 val=97.73 best=97.73
+  SUMMARY cx dual/supMAE k=0 acc=74.83
+  SUMMARY cx dual/supMAE k=1 acc=78.79
+  SUMMARY cx dual/supMAE k=3 acc=81.36
+  [T5] subj=cyy N=2 finetune_subjects=['cx', 'myj'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=cyy mode=dual prior=supMAE train=396 val=110
+    ep001 loss=2.663 val=47.27 best=47.27
+    ep020 loss=0.003 val=95.45 best=95.45
+    ep040 loss=0.001 val=96.36 best=97.27
+    ep060 loss=0.001 val=97.27 best=97.27
+    ep080 loss=0.000 val=97.27 best=97.27
+  SUMMARY cyy dual/supMAE k=0 acc=72.73
+  SUMMARY cyy dual/supMAE k=1 acc=80.81
+  SUMMARY cyy dual/supMAE k=3 acc=84.42
+  [T5] subj=myj N=2 finetune_subjects=['cx', 'cyy'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=myj mode=dual prior=supMAE train=396 val=110
+    ep001 loss=2.636 val=46.36 best=46.36
+    ep020 loss=0.003 val=92.73 best=93.64
+    ep040 loss=0.001 val=94.55 best=94.55
+    ep060 loss=0.001 val=95.45 best=95.45
+    ep080 loss=0.000 val=95.45 best=95.45
+  SUMMARY myj dual/supMAE k=0 acc=56.82
+  SUMMARY myj dual/supMAE k=1 acc=71.21
+  SUMMARY myj dual/supMAE k=3 acc=77.27
+  [T5] subj=qyh N=2 finetune_subjects=['cx', 'cyy'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=qyh mode=dual prior=supMAE train=396 val=110
+    ep001 loss=2.636 val=46.36 best=46.36
+    ep020 loss=0.003 val=92.73 best=93.64
+    ep040 loss=0.001 val=94.55 best=94.55
+    ep060 loss=0.001 val=95.45 best=95.45
+    ep080 loss=0.000 val=95.45 best=95.45
+  SUMMARY qyh dual/supMAE k=0 acc=67.63
+  SUMMARY qyh dual/supMAE k=1 acc=83.56
+  SUMMARY qyh dual/supMAE k=3 acc=86.29
+  [T5] subj=zyh N=2 finetune_subjects=['cx', 'cyy'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=zyh mode=dual prior=supMAE train=396 val=110
+    ep001 loss=2.636 val=46.36 best=46.36
+    ep020 loss=0.003 val=92.73 best=93.64
+    ep040 loss=0.001 val=94.55 best=94.55
+    ep060 loss=0.001 val=95.45 best=95.45
+    ep080 loss=0.000 val=95.45 best=95.45
+  SUMMARY zyh dual/supMAE k=0 acc=89.39
+  SUMMARY zyh dual/supMAE k=1 acc=89.77
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/supMAE k=3 acc=95.45
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N2/dual_supMAE/summary.csv
+  [T5] subj=cx N=2 finetune_subjects=['cyy', 'myj'] clips=440
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=cx mode=dual prior=mae train=352 val=88
+    ep001 loss=2.902 val=50.00 best=50.00
+    ep020 loss=0.002 val=95.45 best=96.59
+    ep040 loss=0.001 val=96.59 best=96.59
+    ep060 loss=0.000 val=95.45 best=96.59
+    ep080 loss=0.000 val=95.45 best=96.59
+  SUMMARY cx dual/mae k=0 acc=71.33
+  SUMMARY cx dual/mae k=1 acc=74.62
+  SUMMARY cx dual/mae k=3 acc=79.55
+  [T5] subj=cyy N=2 finetune_subjects=['cx', 'myj'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=cyy mode=dual prior=mae train=396 val=110
+    ep001 loss=2.680 val=50.91 best=50.91
+    ep020 loss=0.002 val=94.55 best=94.55
+    ep040 loss=0.001 val=96.36 best=96.36
+    ep060 loss=0.000 val=94.55 best=96.36
+    ep080 loss=0.000 val=94.55 best=96.36
+  SUMMARY cyy dual/mae k=0 acc=72.73
+  SUMMARY cyy dual/mae k=1 acc=78.79
+  SUMMARY cyy dual/mae k=3 acc=83.12
+  [T5] subj=myj N=2 finetune_subjects=['cx', 'cyy'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=myj mode=dual prior=mae train=396 val=110
+    ep001 loss=2.635 val=51.82 best=51.82
+    ep020 loss=0.003 val=92.73 best=93.64
+    ep040 loss=0.001 val=94.55 best=95.45
+    ep060 loss=0.000 val=96.36 best=96.36
+    ep080 loss=0.000 val=96.36 best=97.27
+  SUMMARY myj dual/mae k=0 acc=59.09
+  SUMMARY myj dual/mae k=1 acc=76.77
+  SUMMARY myj dual/mae k=3 acc=79.22
+  [T5] subj=qyh N=2 finetune_subjects=['cx', 'cyy'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=qyh mode=dual prior=mae train=396 val=110
+    ep001 loss=2.635 val=51.82 best=51.82
+    ep020 loss=0.003 val=92.73 best=93.64
+    ep040 loss=0.001 val=94.55 best=95.45
+    ep060 loss=0.000 val=96.36 best=96.36
+    ep080 loss=0.000 val=96.36 best=97.27
+  SUMMARY qyh dual/mae k=0 acc=67.63
+  SUMMARY qyh dual/mae k=1 acc=79.45
+  SUMMARY qyh dual/mae k=3 acc=87.43
+  [T5] subj=zyh N=2 finetune_subjects=['cx', 'cyy'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=zyh mode=dual prior=mae train=396 val=110
+    ep001 loss=2.635 val=51.82 best=51.82
+    ep020 loss=0.003 val=92.73 best=93.64
+    ep040 loss=0.001 val=94.55 best=95.45
+    ep060 loss=0.000 val=96.36 best=96.36
+    ep080 loss=0.000 val=96.36 best=97.27
+  SUMMARY zyh dual/mae k=0 acc=88.89
+  SUMMARY zyh dual/mae k=1 acc=87.50
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/mae k=3 acc=95.45
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N2/dual_mae/summary.csv
+  [T5] subj=cx N=2 finetune_subjects=['cyy', 'myj'] clips=440
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=cx mode=dual prior=supcon train=352 val=88
+    ep001 loss=2.977 val=52.27 best=52.27
+    ep020 loss=0.002 val=92.05 best=94.32
+    ep040 loss=0.001 val=94.32 best=94.32
+    ep060 loss=0.000 val=94.32 best=94.32
+    ep080 loss=0.000 val=94.32 best=94.32
+  SUMMARY cx dual/supcon k=0 acc=69.93
+  SUMMARY cx dual/supcon k=1 acc=73.86
+  SUMMARY cx dual/supcon k=3 acc=78.64
+  [T5] subj=cyy N=2 finetune_subjects=['cx', 'myj'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=cyy mode=dual prior=supcon train=396 val=110
+    ep001 loss=2.690 val=42.73 best=42.73
+    ep020 loss=0.002 val=91.82 best=92.73
+    ep040 loss=0.001 val=92.73 best=92.73
+    ep060 loss=0.000 val=93.64 best=93.64
+    ep080 loss=0.000 val=93.64 best=93.64
+  SUMMARY cyy dual/supcon k=0 acc=70.00
+  SUMMARY cyy dual/supcon k=1 acc=75.76
+  SUMMARY cyy dual/supcon k=3 acc=80.52
+  [T5] subj=myj N=2 finetune_subjects=['cx', 'cyy'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=myj mode=dual prior=supcon train=396 val=110
+    ep001 loss=2.646 val=47.27 best=47.27
+    ep020 loss=0.003 val=91.82 best=91.82
+    ep040 loss=0.001 val=90.91 best=91.82
+    ep060 loss=0.000 val=91.82 best=91.82
+    ep080 loss=0.000 val=91.82 best=91.82
+  SUMMARY myj dual/supcon k=0 acc=57.73
+  SUMMARY myj dual/supcon k=1 acc=69.19
+  SUMMARY myj dual/supcon k=3 acc=75.32
+  [T5] subj=qyh N=2 finetune_subjects=['cx', 'cyy'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=qyh mode=dual prior=supcon train=396 val=110
+    ep001 loss=2.646 val=47.27 best=47.27
+    ep020 loss=0.003 val=91.82 best=91.82
+    ep040 loss=0.001 val=90.91 best=91.82
+    ep060 loss=0.000 val=91.82 best=91.82
+    ep080 loss=0.000 val=91.82 best=91.82
+  SUMMARY qyh dual/supcon k=0 acc=63.07
+  SUMMARY qyh dual/supcon k=1 acc=79.00
+  SUMMARY qyh dual/supcon k=3 acc=84.57
+  [T5] subj=zyh N=2 finetune_subjects=['cx', 'cyy'] clips=506
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=zyh mode=dual prior=supcon train=396 val=110
+    ep001 loss=2.646 val=47.27 best=47.27
+    ep020 loss=0.003 val=91.82 best=91.82
+    ep040 loss=0.001 val=90.91 best=91.82
+    ep060 loss=0.000 val=91.82 best=91.82
+    ep080 loss=0.000 val=91.82 best=91.82
+  SUMMARY zyh dual/supcon k=0 acc=87.88
+  SUMMARY zyh dual/supcon k=1 acc=84.09
+  SUMMARY zyh dual/supcon k=3 acc=94.70
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N2/dual_supcon/summary.csv
+----- N=3 (Wed Jul 15 02:30:01 PM CDT 2026) -----
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+CONFIG mode=dual seed=42 out_root=trained_models/CZU-DUAL-subjectScaling/N3 raw_dir=/home/ptimilsina/projects/DA_GestureRecognition-clean/Data_Processed/czu_imu_raw raw_dim=60 n_train_subjects=3
+  [T5] subj=cx N=3 finetune_subjects=['cyy', 'myj', 'qyh'] clips=681
+  BASE subj=cx mode=dual prior=scratch train=549 val=132
+    ep001 loss=2.475 val=57.58 best=57.58
+    ep020 loss=0.002 val=96.97 best=96.97
+    ep040 loss=0.001 val=96.97 best=96.97
+    ep060 loss=0.000 val=96.97 best=96.97
+    ep080 loss=0.000 val=96.97 best=96.97
+  SUMMARY cx dual/scratch k=0 acc=83.22
+  SUMMARY cx dual/scratch k=1 acc=85.98
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY cx dual/scratch k=3 acc=91.36
+  [T5] subj=cyy N=3 finetune_subjects=['cx', 'myj', 'qyh'] clips=747
+  BASE subj=cyy mode=dual prior=scratch train=593 val=154
+    ep001 loss=2.514 val=60.39 best=60.39
+    ep020 loss=0.002 val=96.75 best=96.75
+    ep040 loss=0.001 val=98.05 best=98.05
+    ep060 loss=0.000 val=98.05 best=98.05
+    ep080 loss=0.000 val=98.05 best=98.05
+  SUMMARY cyy dual/scratch k=0 acc=85.00
+  SUMMARY cyy dual/scratch k=1 acc=86.87
+  SUMMARY cyy dual/scratch k=3 acc=91.56
+  [T5] subj=myj N=3 finetune_subjects=['cx', 'cyy', 'qyh'] clips=747
+  BASE subj=myj mode=dual prior=scratch train=593 val=154
+    ep001 loss=2.485 val=59.09 best=59.09
+    ep020 loss=0.001 val=96.10 best=96.10
+    ep040 loss=0.001 val=97.40 best=97.40
+    ep060 loss=0.000 val=97.40 best=97.40
+    ep080 loss=0.000 val=97.40 best=97.40
+  SUMMARY myj dual/scratch k=0 acc=69.55
+  SUMMARY myj dual/scratch k=1 acc=80.81
+  SUMMARY myj dual/scratch k=3 acc=83.12
+  [T5] subj=qyh N=3 finetune_subjects=['cx', 'cyy', 'myj'] clips=726
+  BASE subj=qyh mode=dual prior=scratch train=572 val=154
+    ep001 loss=2.483 val=63.64 best=63.64
+    ep020 loss=0.002 val=94.16 best=94.81
+    ep040 loss=0.001 val=95.45 best=95.45
+    ep060 loss=0.000 val=96.10 best=96.10
+    ep080 loss=0.000 val=96.75 best=96.75
+  SUMMARY qyh dual/scratch k=0 acc=84.23
+  SUMMARY qyh dual/scratch k=1 acc=84.93
+  SUMMARY qyh dual/scratch k=3 acc=88.57
+  [T5] subj=zyh N=3 finetune_subjects=['cx', 'cyy', 'myj'] clips=726
+  BASE subj=zyh mode=dual prior=scratch train=572 val=154
+    ep001 loss=2.483 val=63.64 best=63.64
+    ep020 loss=0.002 val=94.16 best=94.81
+    ep040 loss=0.001 val=95.45 best=95.45
+    ep060 loss=0.000 val=96.10 best=96.10
+    ep080 loss=0.000 val=96.75 best=96.75
+  SUMMARY zyh dual/scratch k=0 acc=93.94
+  SUMMARY zyh dual/scratch k=1 acc=94.32
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/scratch k=3 acc=96.97
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N3/dual_scratch/summary.csv
+  [T5] subj=cx N=3 finetune_subjects=['cyy', 'myj', 'qyh'] clips=681
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=cx mode=dual prior=supLP120 train=549 val=132
+    ep001 loss=2.382 val=60.61 best=60.61
+    ep020 loss=0.002 val=94.70 best=96.21
+    ep040 loss=0.001 val=95.45 best=96.21
+    ep060 loss=0.000 val=95.45 best=96.21
+    ep080 loss=0.000 val=96.21 best=96.21
+  SUMMARY cx dual/supLP120 k=0 acc=80.77
+  SUMMARY cx dual/supLP120 k=1 acc=83.71
+  SUMMARY cx dual/supLP120 k=3 acc=87.27
+  [T5] subj=cyy N=3 finetune_subjects=['cx', 'myj', 'qyh'] clips=747
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=cyy mode=dual prior=supLP120 train=593 val=154
+    ep001 loss=2.474 val=60.39 best=60.39
+    ep020 loss=0.001 val=96.75 best=97.40
+    ep040 loss=0.000 val=96.10 best=97.40
+    ep060 loss=0.000 val=96.75 best=97.40
+    ep080 loss=0.000 val=96.75 best=97.40
+  SUMMARY cyy dual/supLP120 k=0 acc=85.91
+  SUMMARY cyy dual/supLP120 k=1 acc=82.83
+  SUMMARY cyy dual/supLP120 k=3 acc=88.31
+  [T5] subj=myj N=3 finetune_subjects=['cx', 'cyy', 'qyh'] clips=747
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=myj mode=dual prior=supLP120 train=593 val=154
+    ep001 loss=2.422 val=59.74 best=59.74
+    ep020 loss=0.001 val=94.81 best=96.10
+    ep040 loss=0.000 val=94.81 best=96.10
+    ep060 loss=0.000 val=94.81 best=96.10
+    ep080 loss=0.000 val=94.81 best=96.10
+  SUMMARY myj dual/supLP120 k=0 acc=68.18
+  SUMMARY myj dual/supLP120 k=1 acc=76.77
+  SUMMARY myj dual/supLP120 k=3 acc=82.47
+  [T5] subj=qyh N=3 finetune_subjects=['cx', 'cyy', 'myj'] clips=726
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=qyh mode=dual prior=supLP120 train=572 val=154
+    ep001 loss=2.359 val=64.29 best=64.29
+    ep020 loss=0.001 val=94.81 best=95.45
+    ep040 loss=0.000 val=95.45 best=95.45
+    ep060 loss=0.000 val=95.45 best=95.45
+    ep080 loss=0.000 val=95.45 best=95.45
+  SUMMARY qyh dual/supLP120 k=0 acc=78.01
+  SUMMARY qyh dual/supLP120 k=1 acc=84.02
+  SUMMARY qyh dual/supLP120 k=3 acc=82.86
+  [T5] subj=zyh N=3 finetune_subjects=['cx', 'cyy', 'myj'] clips=726
+    prior loaded: 39 tensors (strict) from trained_models/SUPERVISED/sup_lr_ntu120_epoch_50.pth
+  BASE subj=zyh mode=dual prior=supLP120 train=572 val=154
+    ep001 loss=2.359 val=64.29 best=64.29
+    ep020 loss=0.001 val=94.81 best=95.45
+    ep040 loss=0.000 val=95.45 best=95.45
+    ep060 loss=0.000 val=95.45 best=95.45
+    ep080 loss=0.000 val=95.45 best=95.45
+  SUMMARY zyh dual/supLP120 k=0 acc=85.86
+  SUMMARY zyh dual/supLP120 k=1 acc=89.77
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/supLP120 k=3 acc=90.15
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N3/dual_supLP120/summary.csv
+  [T5] subj=cx N=3 finetune_subjects=['cyy', 'myj', 'qyh'] clips=681
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=cx mode=dual prior=supMAE train=549 val=132
+    ep001 loss=2.425 val=50.76 best=50.76
+    ep020 loss=0.002 val=96.97 best=96.97
+    ep040 loss=0.001 val=96.97 best=96.97
+    ep060 loss=0.000 val=96.97 best=96.97
+    ep080 loss=0.000 val=96.97 best=96.97
+  SUMMARY cx dual/supMAE k=0 acc=80.77
+  SUMMARY cx dual/supMAE k=1 acc=84.85
+  SUMMARY cx dual/supMAE k=3 acc=89.55
+  [T5] subj=cyy N=3 finetune_subjects=['cx', 'myj', 'qyh'] clips=747
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=cyy mode=dual prior=supMAE train=593 val=154
+    ep001 loss=2.445 val=57.14 best=57.14
+    ep020 loss=0.002 val=96.10 best=96.10
+    ep040 loss=0.001 val=96.75 best=96.75
+    ep060 loss=0.000 val=96.75 best=96.75
+    ep080 loss=0.000 val=96.75 best=96.75
+  SUMMARY cyy dual/supMAE k=0 acc=85.45
+  SUMMARY cyy dual/supMAE k=1 acc=86.36
+  SUMMARY cyy dual/supMAE k=3 acc=91.56
+  [T5] subj=myj N=3 finetune_subjects=['cx', 'cyy', 'qyh'] clips=747
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=myj mode=dual prior=supMAE train=593 val=154
+    ep001 loss=2.451 val=55.84 best=55.84
+    ep020 loss=0.001 val=94.81 best=96.10
+    ep040 loss=0.001 val=94.81 best=96.10
+    ep060 loss=0.000 val=95.45 best=96.10
+    ep080 loss=0.000 val=96.75 best=96.75
+  SUMMARY myj dual/supMAE k=0 acc=70.00
+  SUMMARY myj dual/supMAE k=1 acc=83.84
+  SUMMARY myj dual/supMAE k=3 acc=81.17
+  [T5] subj=qyh N=3 finetune_subjects=['cx', 'cyy', 'myj'] clips=726
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=qyh mode=dual prior=supMAE train=572 val=154
+    ep001 loss=2.428 val=55.84 best=55.84
+    ep020 loss=0.001 val=96.10 best=96.10
+    ep040 loss=0.001 val=95.45 best=96.10
+    ep060 loss=0.000 val=95.45 best=96.10
+    ep080 loss=0.000 val=95.45 best=96.10
+  SUMMARY qyh dual/supMAE k=0 acc=79.67
+  SUMMARY qyh dual/supMAE k=1 acc=83.11
+  SUMMARY qyh dual/supMAE k=3 acc=85.71
+  [T5] subj=zyh N=3 finetune_subjects=['cx', 'cyy', 'myj'] clips=726
+    prior loaded: 39 tensors (strict) from trained_models/SUPMAE/supmae_best.pth
+  BASE subj=zyh mode=dual prior=supMAE train=572 val=154
+    ep001 loss=2.428 val=55.84 best=55.84
+    ep020 loss=0.001 val=96.10 best=96.10
+    ep040 loss=0.001 val=95.45 best=96.10
+    ep060 loss=0.000 val=95.45 best=96.10
+    ep080 loss=0.000 val=95.45 best=96.10
+  SUMMARY zyh dual/supMAE k=0 acc=90.40
+  SUMMARY zyh dual/supMAE k=1 acc=90.91
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/supMAE k=3 acc=94.70
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N3/dual_supMAE/summary.csv
+  [T5] subj=cx N=3 finetune_subjects=['cyy', 'myj', 'qyh'] clips=681
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=cx mode=dual prior=mae train=549 val=132
+    ep001 loss=2.459 val=50.00 best=50.00
+    ep020 loss=0.002 val=96.97 best=96.97
+    ep040 loss=0.001 val=96.97 best=96.97
+    ep060 loss=0.000 val=96.97 best=96.97
+    ep080 loss=0.000 val=96.97 best=96.97
+  SUMMARY cx dual/mae k=0 acc=79.72
+  SUMMARY cx dual/mae k=1 acc=83.71
+  SUMMARY cx dual/mae k=3 acc=87.27
+  [T5] subj=cyy N=3 finetune_subjects=['cx', 'myj', 'qyh'] clips=747
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=cyy mode=dual prior=mae train=593 val=154
+    ep001 loss=2.503 val=62.99 best=62.99
+    ep020 loss=0.001 val=95.45 best=96.75
+    ep040 loss=0.000 val=96.10 best=96.75
+    ep060 loss=0.000 val=96.10 best=96.75
+    ep080 loss=0.000 val=94.81 best=96.75
+  SUMMARY cyy dual/mae k=0 acc=84.55
+  SUMMARY cyy dual/mae k=1 acc=84.85
+  SUMMARY cyy dual/mae k=3 acc=89.61
+  [T5] subj=myj N=3 finetune_subjects=['cx', 'cyy', 'qyh'] clips=747
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=myj mode=dual prior=mae train=593 val=154
+    ep001 loss=2.496 val=58.44 best=58.44
+    ep020 loss=0.001 val=95.45 best=96.10
+    ep040 loss=0.000 val=96.10 best=96.10
+    ep060 loss=0.000 val=96.10 best=96.10
+    ep080 loss=0.000 val=95.45 best=96.10
+  SUMMARY myj dual/mae k=0 acc=70.45
+  SUMMARY myj dual/mae k=1 acc=79.80
+  SUMMARY myj dual/mae k=3 acc=83.12
+  [T5] subj=qyh N=3 finetune_subjects=['cx', 'cyy', 'myj'] clips=726
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=qyh mode=dual prior=mae train=572 val=154
+    ep001 loss=2.484 val=64.29 best=64.29
+    ep020 loss=0.001 val=94.81 best=96.75
+    ep040 loss=0.000 val=95.45 best=96.75
+    ep060 loss=0.000 val=95.45 best=96.75
+    ep080 loss=0.000 val=95.45 best=96.75
+  SUMMARY qyh dual/mae k=0 acc=80.91
+  SUMMARY qyh dual/mae k=1 acc=86.30
+  SUMMARY qyh dual/mae k=3 acc=89.71
+  [T5] subj=zyh N=3 finetune_subjects=['cx', 'cyy', 'myj'] clips=726
+    prior loaded: 39 tensors (strict) from trained_models/MAE/mae_geoLoss_epoch_50.pth
+  BASE subj=zyh mode=dual prior=mae train=572 val=154
+    ep001 loss=2.484 val=64.29 best=64.29
+    ep020 loss=0.001 val=94.81 best=96.75
+    ep040 loss=0.000 val=95.45 best=96.75
+    ep060 loss=0.000 val=95.45 best=96.75
+    ep080 loss=0.000 val=95.45 best=96.75
+  SUMMARY zyh dual/mae k=0 acc=91.92
+  SUMMARY zyh dual/mae k=1 acc=90.91
+/home/ptimilsina/projects/DA_GestureRecognition-clean/src/models/kinematic_encoder.py:39: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+  SUMMARY zyh dual/mae k=3 acc=96.21
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N3/dual_mae/summary.csv
+  [T5] subj=cx N=3 finetune_subjects=['cyy', 'myj', 'qyh'] clips=681
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=cx mode=dual prior=supcon train=549 val=132
+    ep001 loss=2.452 val=54.55 best=54.55
+    ep020 loss=0.001 val=96.21 best=96.21
+    ep040 loss=0.001 val=95.45 best=96.21
+    ep060 loss=0.000 val=95.45 best=96.21
+    ep080 loss=0.000 val=94.70 best=96.21
+  SUMMARY cx dual/supcon k=0 acc=83.22
+  SUMMARY cx dual/supcon k=1 acc=84.85
+  SUMMARY cx dual/supcon k=3 acc=87.27
+  [T5] subj=cyy N=3 finetune_subjects=['cx', 'myj', 'qyh'] clips=747
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=cyy mode=dual prior=supcon train=593 val=154
+    ep001 loss=2.518 val=64.29 best=64.29
+    ep020 loss=0.001 val=93.51 best=94.16
+    ep040 loss=0.000 val=94.81 best=94.81
+    ep060 loss=0.000 val=95.45 best=95.45
+    ep080 loss=0.000 val=95.45 best=95.45
+  SUMMARY cyy dual/supcon k=0 acc=86.82
+  SUMMARY cyy dual/supcon k=1 acc=84.34
+  SUMMARY cyy dual/supcon k=3 acc=87.66
+  [T5] subj=myj N=3 finetune_subjects=['cx', 'cyy', 'qyh'] clips=747
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=myj mode=dual prior=supcon train=593 val=154
+    ep001 loss=2.499 val=59.74 best=59.74
+    ep020 loss=0.001 val=96.75 best=96.75
+    ep040 loss=0.000 val=96.10 best=96.75
+    ep060 loss=0.000 val=96.75 best=96.75
+    ep080 loss=0.000 val=96.75 best=96.75
+  SUMMARY myj dual/supcon k=0 acc=67.27
+  SUMMARY myj dual/supcon k=1 acc=77.78
+  SUMMARY myj dual/supcon k=3 acc=83.77
+  [T5] subj=qyh N=3 finetune_subjects=['cx', 'cyy', 'myj'] clips=726
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=qyh mode=dual prior=supcon train=572 val=154
+    ep001 loss=2.495 val=62.99 best=62.99
+    ep020 loss=0.001 val=94.81 best=95.45
+    ep040 loss=0.000 val=94.81 best=95.45
+    ep060 loss=0.000 val=94.81 best=95.45
+    ep080 loss=0.000 val=95.45 best=95.45
+  SUMMARY qyh dual/supcon k=0 acc=79.67
+  SUMMARY qyh dual/supcon k=1 acc=83.56
+  SUMMARY qyh dual/supcon k=3 acc=85.71
+  [T5] subj=zyh N=3 finetune_subjects=['cx', 'cyy', 'myj'] clips=726
+    prior loaded: 39 tensors (strict) from trained_models/ContrastiveNTU/supcon_epoch_50.pth
+  BASE subj=zyh mode=dual prior=supcon train=572 val=154
+    ep001 loss=2.495 val=62.99 best=62.99
+    ep020 loss=0.001 val=94.81 best=95.45
+    ep040 loss=0.000 val=94.81 best=95.45
+    ep060 loss=0.000 val=94.81 best=95.45
+    ep080 loss=0.000 val=95.45 best=95.45
+  SUMMARY zyh dual/supcon k=0 acc=86.36
+  SUMMARY zyh dual/supcon k=1 acc=86.93
+  SUMMARY zyh dual/supcon k=3 acc=93.94
+
+Wrote /home/ptimilsina/projects/DA_GestureRecognition-clean/trained_models/CZU-DUAL-subjectScaling/N3/dual_supcon/summary.csv
+===== STAGE 9 COLD-START DONE Wed Jul 15 03:08:10 PM CDT 2026 =====
+===== FULL RERUN ALL DONE Wed Jul 15 03:08:10 PM CDT 2026 =====

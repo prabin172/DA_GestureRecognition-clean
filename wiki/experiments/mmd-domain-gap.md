@@ -6,7 +6,7 @@ updated: 2026-07-03
 
 # MMD domain-gap analysis
 
-Squared MMD between NTU and Xsens features in each encoder's space ([[domain-gap-metrics]] — method + its three flaws). Script: `temp_mmd_domain_gap.py`. Apples-to-apples across modes: same encoders, same NTU pool, n=500; only Xsens data changed.
+Squared MMD between NTU and Xsens features in each encoder's space ([[domain-gap-metrics]] — method + its three flaws). Script: `scripts/main_experiment/mmd_domain_gap.py`. Apples-to-apples across modes: same encoders, same NTU pool, n=500; only Xsens data changed.
 
 ## Local — `trained_models/MMD_DomainGap/mmd_table.csv` (2026-06-29)
 | encoder | MMD² |
@@ -26,8 +26,8 @@ Dirs: `MMD_DomainGap-swing/`, `-symmetricSwing/`, `-v2/`. n=500, local NTU.
 | mae | 0.0204 | 0.0634 | 0.0692 | **0.0182** |
 | scratch | 0.0515 | 0.1791 | 0.1643 | **0.0415** |
 
-- **Symmetric swing** (swing-project NTU too, `temp_mmd_domain_gap_symmetric.py`) ≈ asymmetric swing → the gap increase was NOT the asymmetry; twist-stripping damaged Xsens. NTU-local is already ~twist-free (projecting it was ~a no-op).
-- **v2** (position-derived Xsens, `temp_mmd_domain_gap.py --xsens-root Data_Processed/imu_quats_v2`) is **below local for every encoder** → the real fix. See [[position-reconstruction-v2]].
+- **Symmetric swing** (swing-project NTU too, `mmd_domain_gap_symmetric.py (dead, not in this repo)`) ≈ asymmetric swing → the gap increase was NOT the asymmetry; twist-stripping damaged Xsens. NTU-local is already ~twist-free (projecting it was ~a no-op).
+- **v2** (position-derived Xsens, `scripts/main_experiment/mmd_domain_gap.py --xsens-root Data_Processed/imu_quats_v2`) is **below local for every encoder** → the real fix. See [[position-reconstruction-v2]].
 
 ## Findings
 - **Swing INCREASED the NTU↔Xsens gap ~3×** — opposite of the branch hypothesis ([[swing-mode]]). Partly built-in: twist removed from Xsens only (asymmetric test).

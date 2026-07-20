@@ -128,8 +128,8 @@ def rbf_mmd_sq(X, Y, sigmas=(0.5, 1.0, 2.0, 5.0)):
 def main():
     ap = argparse.ArgumentParser(description="MMD domain gap analysis between NTU and Xsens features.")
     ap.add_argument("--ntu-root", type=Path, default=Path("Data_Processed/ntu_quats"))
-    ap.add_argument("--xsens-root", type=Path, default=Path("Data_Processed/imu_quats"))
-    ap.add_argument("--xsens-index", type=Path, default=Path("Data_Processed/imu_quats/index.csv"))
+    ap.add_argument("--xsens-root", type=Path, default=Path("Data_Processed/imu_quats_v2"))
+    ap.add_argument("--xsens-index", type=Path, default=Path("Data_Processed/imu_quats_v2/index.csv"))
     ap.add_argument("--out-dir", type=Path, default=Path("trained_models/MMD_DomainGap"))
     ap.add_argument("--n-samples", type=int, default=500, help="Clips sampled per domain per encoder")
     ap.add_argument("--batch-size", type=int, default=128)

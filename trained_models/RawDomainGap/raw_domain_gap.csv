@@ -1,0 +1,11 @@
+a,b,n_a,n_b,mmd2,frechet,a_distance,clf_acc
+ntu,xsens_v2,1000,1000,0.12178,281.938,1.996,0.999
+ntu,czu_skeleton,1000,1000,0.05603,176.82,1.916,0.979
+ntu,czu_imu_quat,1000,1000,0.20491,393.833,2.0,1.0
+ntu,utd_skeleton,1000,861,0.09603,202.09,1.9979,0.9995
+xsens_v2,czu_skeleton,1000,1000,0.1114,362.139,2.0,1.0
+xsens_v2,czu_imu_quat,1000,1000,0.15972,337.84,2.0,1.0
+xsens_v2,utd_skeleton,1000,861,0.14371,357.275,2.0,1.0
+czu_skeleton,czu_imu_quat,1000,1000,0.19146,426.834,2.0,1.0
+czu_skeleton,utd_skeleton,1000,861,0.11051,233.894,2.0,1.0
+czu_imu_quat,utd_skeleton,1000,861,0.23289,475.273,2.0,1.0
