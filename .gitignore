@@ -1,6 +1,7 @@
 .venv/
 __pycache__/
 *.pyc
+.obsidian/
 
 # Raw/processed data -- large, tracked via migration/ manifest instead
 DataCollection/
@@ -12,15 +13,11 @@ external_data/
 
 # Experiment runtime logs
 *.log
+*.log.*
 temp_outputs/
 
-# Generated experiment internals -- trained_models/ starts empty in this repo;
-# only summary CSVs/JSONs/PNGs from a run should ever be tracked, never these
-trained_models/**/Logs/
-trained_models/**/splits/
-trained_models/**/models/
-trained_models/**/*.pth
-trained_models/**/*.pt
-
-# Latent-space projection tables; keep figures only
-trained_models/UMAP_TargetLatents/*.csv
+# Generated experiment internals -- too heavy for the git remote (2026-07-20
+# human decision); keep locally, don't push. Was previously scoped to just the
+# heavy subdirs/binaries (Logs/, splits/, models/, *.pth/*.pt) with summary
+# CSVs/JSONs/PNGs tracked -- now the whole directory is excluded.
+trained_models/
