@@ -1,10 +1,22 @@
 ---
 type: concept
 status: active
-updated: 2026-07-16
+updated: 2026-07-20
 ---
 
 # The downstream controller (C6 / THMS pillar)
+
+**2026-07-20 — not yet discussed with advisor, methodological flag before presenting.** Re-running
+both the prototype and robustness protocol on `DA_GestureRecognition-clean`'s independently-retrained
+checkpoints surfaced a real problem, not just numeric drift: **the abstract's headline number
+("4pp recognition gap → 21pp task-success gap", mae worst) does not reproduce, and the fixed-assignment
+view (both the prototype §8 and Locks 2/3 §9) now names a *different* method — supLP120 — as worst,
+while only Lock 1's randomized-assignment view still shows mae worst.** See §8, §9, and [[phase3-controller]]
+for the numbers. This is a legitimate, explainable finding (a specific supLP120 failure mode, not a bug —
+detailed in §10), but it means the single fixed-configuration illustrative number currently quoted in the
+paper's abstract is not robust to an independent retrain, and the "ordering is invariant to the knobs"
+framing in §9 needs to be read as "Lock 1 says X, Locks 2/3 say Y" rather than one settled claim. Read
+this whole page with that in mind before using it as-is in any advisor conversation.
 
 ## What this is actually trying to prove (read this first)
 
@@ -116,7 +128,19 @@ The robust version additionally reports **mean_cost** (the soft-outcome dual of 
 
 Single fixed configuration: the method-agnostic mapping (§2), the one named Sequential Control Task (§3), 4 methods (`scratch, mae, supMAE, supLP120` — supcon not in the prototype), k∈{1,3}, and a τ sweep `[0.0, 0.3, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.93, 0.95, 0.97, 0.99]` (`scripts/controller/controller_sim.py:174`), 3000 Monte Carlo trials per (method,k,τ) cell, fixed RNG seed (default 7). Outputs → `trained_models/Phase3-controller/`: `controller_results.csv` (full sweep), `operating_point_summary.csv` (fixed τ=0.9 slice), `mapping.csv`, and three PNGs (success-vs-τ, safety/throughput frontier, success-by-method bar chart at the fixed operating point). Illustrative headline: at k=1, τ=0 (ungated), task-success is supMAE 0.967 / scratch 0.905 / supLP120 0.861 / mae 0.754 — the "4pp recognition gap → 21pp task-success gap" number quoted in the abstract and R5's opening.
 
-This configuration is retained in the paper for readability, but **no claim rests on these exact numbers** — a single System Input assignment, a single cost model, and a single τ are each a choice a reviewer could call cherry-picked. That is what §9 exists to close off.
+**2026-07-20 rerun: this headline number changed and its story changed with it.** Same configuration,
+independently-retrained checkpoints (`trained_models/Phase3-controller/operating_point_summary.csv`,
+`controller_results.csv`). At k=1, τ=0 (the exact cell the abstract cites): task-success is now
+supcon 0.975 / supMAE 0.927 / scratch 0.898 / mae 0.888 / **supLP120 0.790 (worst)**. mae is no longer
+the worst method in this single fixed-vocab configuration — supLP120 is, by a wide margin, and it's
+worst at k=3/τ=0 too (0.957, again the lowest). This is the same finding Locks 2/3 independently surface
+(§9) — not a coincidence, since the prototype's `build_mapping` and the robust script's
+`reliability_ordered_vocab` compute the same kind of reliability-ranked fixed assignment (`mapping.csv`),
+so both inherit the same supLP120 confident-misfire mechanism (§10). **This configuration is retained in
+the paper for readability, but no claim rests on these exact numbers** — a single System Input
+assignment, a single cost model, and a single τ are each a choice a reviewer could call cherry-picked.
+That is what §9 exists to close off — though as of this rerun, §9 itself only partially closes it off;
+see the note there.
 
 ## 9. Robustness protocol (`scripts/controller/controller_robust.py`) — what's actually claimed
 
@@ -138,8 +162,25 @@ Resample 7 distinct gesture IDs uniformly at random (not reliability-ranked) and
 *Kills: "you tuned τ to make your preferred method win."*
 Rather than pick one τ and compare success rates there (which invites exactly that objection), fix a **false-activation budget** (1% or 0.5%) and, per method, find the *smallest* τ that meets it (`scripts/controller/controller_robust.py:246-282`) — this is a deployment-standard way to set an operating threshold and requires no tuning against the outcome metric at all. Compare task-success and mean-cost **at each method's own budget-meeting τ\***, not at a shared τ. The full τ-frontier (task-success vs false-activation, swept over the same `TAUS` list as the prototype, `scripts/controller/controller_robust.py:47`) is also reported (`frontier.csv`) for the plot showing the whole tradeoff curve, not just the one operating point.
 
-### What the three locks jointly establish
-Across 120 random System Input assignments × 2 outcome models × a 6-point critical-cost sweep × a tuning-free operating point, two claims survive every knob: **(1) mae compounds worst** (highest cost/lowest success at essentially every configuration tried) and **(2) calibration governs the safety/throughput trade** (the best-calibrated init, supLP120, reaches a given false-activation budget at the lowest τ, hence completes tasks faster at the same safety level). See [[phase3-controller]] for the exact locked numbers.
+### What the three locks jointly establish — 2026-07-20: this no longer holds as a single unified claim
+**Original claim (original checkpoint):** across 120 random System Input assignments × 2 outcome models
+× a 6-point critical-cost sweep × a tuning-free operating point, two claims survived every knob:
+(1) mae compounds worst, (2) calibration governs the safety/throughput trade.
+
+**On the independently-retrained checkpoint, the three locks no longer agree on claim (1).** Lock 1
+(120 *random* assignments, averaged) still shows mae worst. Locks 2 and 3 — which both evaluate on the
+one *fixed* reliability-ranked assignment (`reliability_ordered_vocab`, same mechanism as the prototype's
+`build_mapping`, §8) rather than Lock 1's 120 random draws — now show **supLP120** as worst at
+harsh penalties (Lock 2: mean cost 237,681 vs mae's 123,015 at C_crit=∞) and at k=1 iso-safety cost
+(Lock 3). This is a real, mechanistically-explained divergence (§10's "confident false-critical-activation"
+mode, more pronounced on this checkpoint), not a bug or a coding error — but it means the *design's own
+purpose* (showing the ordering is invariant to which knob you turn) is the thing that broke: the three
+locks now point at two different "worst" methods depending on whether you use the randomized or the
+fixed-reliability-ranked assignment. Claim (2), calibration governs safety/throughput, holds up better —
+supLP120 remains best-calibrated (unchanged, R4a) and reaches a given false-activation budget at a low τ
+in both runs — but even there the specifics moved (supLP120 no longer has the strictly-lowest τ* at k=1;
+mae now does, at 0.93 vs supLP120's 0.97). Full numbers: [[phase3-controller]] and
+`paper/paper_results.md` R5 (2026-07-20 update).
 
 ## 10. The honest finding baked into the design
 
