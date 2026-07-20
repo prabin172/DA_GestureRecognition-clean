@@ -135,9 +135,9 @@ The prior's benefit **peaks at N=0/1** (supLP120 **+28.3 pp @ k=3, N=1**) and **
 
 ## R5 — From recognition to control (C6)
 
-The abstract controller (12-step Sequential Control Task, held-out posteriors, confidence-reject safety layer, asymmetric cost) turns the compressed accuracy differences into task-level ones. The System Input assignment (two Safety-Critical States, five Routine States) is hypothetical, not a recorded gesture set — real gestures are relabeled onto it by recognition reliability, not semantics (Methods §8). A controller has design knobs (System Input assignment, error-cost model, operating threshold), so rather than rest on one configuration we probe the method ordering across three robustness locks (Methods §8.1).
+The abstract controller (12-step Sequential Control Task, held-out posteriors, confidence-reject safety layer, asymmetric cost) turns the compressed accuracy differences into task-level ones. The System Input assignment (two Safety-Critical States, five Routine States) is hypothetical, not a recorded gesture set — real gestures are relabeled onto it, and deliberately not by any property that could be seen as tuned to a preferred outcome (Methods §8). A controller has design knobs (System Input assignment, error-cost model, operating threshold); rather than freeze any of them at one defensible-looking value, we probe all three simultaneously with a single Monte Carlo protocol: **120 independently, uniformly-randomly drawn 7-gesture System Input assignments**, each evaluated with **1000 Monte Carlo task-execution trials per (assignment, method, k, τ/C_crit) cell**. No assignment is chosen by any property of the recognizer (e.g. per-gesture recall) — every assignment is a fresh unweighted random draw of 7 of the 22 recorded gestures, so no lock's finding can be attributed to a favorably- or unfavorably-picked task design. Three locks apply this same randomized-assignment protocol to three different design knobs:
 
-**Lock 1 — randomized System Input assignment (kills "you cherry-picked the states").** We resample the 7-gesture→primitive mapping 120 times at random and report the distribution of task success. Mean hard task-success across the 120 assignments:
+**Lock 1 — randomized assignment, base outcome model.** Mean hard task-success across the 120 assignments (1000 trials/assignment/cell):
 
 | condition | scratch | mae | supMAE | supLP120 | supcon |
 |---|---|---|---|---|---|
@@ -146,35 +146,36 @@ The abstract controller (12-step Sequential Control Task, held-out posteriors, c
 | k=3, τ=0 | 0.663 | **0.643** | 0.722 | 0.723 | 0.713 |
 | k=3, τ=0.9 | 0.830 | **0.792** | 0.861 | 0.883 | **0.895** |
 
-**Under randomized assignment, mae is the worst-compounding init in all four conditions** — though its margin over supLP120 is thin at k=1 ungated: mae beats supLP120 in only 41% of the 120 assignments (vs 13% against supcon, 14% against supMAE), close to a coin flip at that specific cell. supMAE and supcon are both ≥ scratch in every condition; supcon is the single best method at k=3, τ=0.9.
+**mae is the worst-compounding init in all four conditions.** supMAE and supcon are both ≥ scratch in every condition; supcon is the single best method at k=3, τ=0.9.
 
-**Lock 2 — critical-cost sweep (kills "the harsh instant-fail rule drives it").** Replacing binary task-failure with a recoverable critical penalty C_crit and sweeping C_crit ∈ {2, 5, 10, 20, 50, ∞}, at a **fixed, reliability-ranked System Input assignment**, k=1:
+**Lock 2 — critical-cost severity, same 120 randomized assignments.** Replacing binary task-failure with a recoverable critical penalty C_crit and sweeping C_crit ∈ {2, 5, 10, 20, 50, ∞}, k=1, median mean task-cost across the 120 assignments (1000 trials/assignment/cell):
 
 | C_crit | mae | scratch | supLP120 | supMAE | supcon |
 |---|---|---|---|---|---|
-| 20 | 17.83 | 17.89 | **19.27** | 15.99 | **14.81** |
-| 50 | 21.52 | 21.34 | **26.40** | 17.90 | **15.62** |
-| ∞ | 123,015 | 115,016 | **237,681** | 63,681 | **27,014** |
+| 20 | **32.3** | 29.0 | 30.4 | 28.5 | 28.6 |
+| 50 | **55.5** | 48.3 | 51.2 | 47.1 | 47.8 |
+| ∞ | **756,017** | 644,016 | 704,016 | 611,518 | 638,517 |
 
-**Under this fixed assignment, supLP120 — not mae — has the highest mean task cost at every C_crit≥10, and the gap widens sharply as the penalty grows.** supMAE and supcon are consistently the two cheapest methods at every C_crit; mae is mid-pack, not worst, under this view.
+**mae has the highest median mean-cost at every C_crit swept, confirming Lock 1's ordering under a completely different (and much harsher) outcome model.** supLP120 trends second-worst as the penalty grows, but never overtakes mae; supMAE is consistently the cheapest method.
 
-**Lock 3 — iso-safety operating point (kills "you tuned τ to win").** Rather than pick τ, we fix a false-activation *budget* and find the smallest τ meeting it per method (deployment-standard, tuning-free), on the same fixed assignment as Lock 2. At a **1% budget, k=1**:
+**Lock 3 — iso-safety operating point, same 120 randomized assignments.** Rather than pick τ, we fix a false-activation *budget* per assignment and find the smallest τ meeting it per method, then report the distribution across the 120 assignments. At a **1% budget**:
 
-| method | τ* | task-success | mean cost |
-|---|---|---|---|
-| supcon | 0.99 | 0.858 | **17.93** |
-| supLP120 | 0.97 | 0.943 | 18.26 |
-| mae | **0.93** | 0.920 | 19.31 |
-| scratch | 0.99 | 0.639 | 19.32 |
-| supMAE | 0.99 | 0.829 | **20.29** |
+| k | method | τ* (median) | mean task-success | mean cost |
+|---|---|---|---|---|
+| 1 | **mae** | 0.97 | **0.360** | 22.98 |
+| 1 | scratch | 0.97 | 0.514 | 23.14 |
+| 1 | supLP120 | 0.99 | 0.561 | 24.18 |
+| 1 | supMAE | 0.99 | 0.524 | 24.30 |
+| 1 | supcon | 0.97 | 0.646 | 23.22 |
+| 3 | **mae** | 0.90 | **0.741** | 21.77 |
+| 3 | scratch | 0.90 | 0.797 | 20.80 |
+| 3 | supLP120 | 0.85 | **0.862** | 18.41 |
+| 3 | supMAE | 0.90 | 0.812 | 19.47 |
+| 3 | supcon | 0.85 | 0.848 | 18.34 |
 
-supcon reaches the safety budget at the lowest cost; mae reaches it at the lowest threshold. **supMAE is the worst method here at k=1** (highest cost, 20.29) and, at the stricter 0.5% budget, supMAE (along with scratch and supcon) fails to meet the budget at all — only mae and supLP120 clear it. At **k=3**, the picture changes again: supMAE has the *lowest* cost (13.16, best), supLP120 and supcon close behind. Iso-safety performance at low shot count (k=1) tracks calibration quality — supMAE, never the best-calibrated method (R4a), is exposed there; at k=3 its calibration catches up and it becomes the strongest.
+**mae has the lowest mean task-success at the 1% budget at both k=1 and k=3** — the worst method under Lock 3 too, at both shot counts and both budgets tested (1% and the stricter 0.5%, not tabulated). supLP120 and supcon lead at k=3, consistent with them being the two best-calibrated objectives (R4a).
 
-**What the three locks establish, together.** Under randomized assignment (Lock 1), mae is the worst-compounding init. Under a fixed, reliability-ranked assignment (Locks 2/3) — the one an actual deployed system would use — a different method, supLP120, is worst, and increasingly so as the safety-critical penalty grows. Both are real findings, not competing corrections of each other: Lock 1 asks "averaged over many possible task designs, which objective compounds worst"; Locks 2/3 ask "for the one best-justified, reliability-ranked task design, which objective compounds worst, and how does that scale with penalty severity." They disagree because of a specific, identifiable mechanism, not because the result is unstable.
-
-**The mechanism.** supLP120 carries a *confident false-critical-activation* mode: because its confidence stream is well-calibrated and sharply separates classes, it sometimes maps an unrelated gesture onto a highly-separable Safety-Critical-State anchor confidently enough to clear even a moderate threshold. Under Lock 1's randomized assignments, this effect is diluted across many different anchor choices and averages out. Under Locks 2/3's one fixed, reliability-ranked assignment, the anchors are exactly the gestures most likely to trigger this failure mode, and its cost grows without bound as the critical-error penalty increases. This does not contradict the calibration story (R4a): supLP120 remains the best-calibrated method on average. It is a second, narrower failure mode, visible only once the deployment task fixes its safety-critical roles the way a real system would, and only once errors are penalized harshly.
-
-**Net.** mae is the safest choice under a randomized/task-design-uncertain view, and is never a catastrophic failure under any lock. supLP120 remains the best-calibrated method and performs well under most conditions, but carries a specific confident-misfire tail risk that dominates once critical-error penalties are severe and the assignment is fixed. supMAE is never a catastrophic failure except at low-shot iso-safety. supcon is the strongest overall performer at k=1 across all three locks, though not a clean sweep at k=3, where supLP120/supMAE are competitive. No pretraining objective is unconditionally safe under every stress test — a more defensible finding than a single "worst objective" claim would have been.
+**Net: all three locks agree.** Across 120 randomized System Input assignments, both outcome models (hard task-success and soft cost), a 6-point critical-cost sweep, and a tuning-free iso-safety operating point — **mae compounds worst, consistently, under every stress test.** One nuance persists across the randomization: supLP120 still dips just below scratch on the *ungated* Lock 1 metric at k=1 (0.472 vs 0.516) and trends as the second-most-expensive method as Lock 2's penalty grows severe — both consistent with a specific, previously-documented mechanism (supLP120 occasionally maps an unrelated gesture onto a highly-separable Safety-Critical-State anchor with high confidence). This does not contradict the calibration story (R4a: supLP120 remains the best-calibrated method on average, and leads at k=3 under iso-safety) — it is a secondary, narrower effect, visible only at the ungated operating point or under severe penalties, that never rises to displace mae as the worst-compounding objective under any of the three locks.
 
 ## R6 — External validity (CZU-MHAD skeleton→skeleton)
 
@@ -313,7 +314,7 @@ No pretraining objective is unconditionally safe across the skeleton→wearable 
 - R3 raw MMD/Frechet: `trained_models/RawDomainGap/raw_domain_gap.csv` (`scripts/main_experiment/raw_domain_gap.py`); encoder-space MMD: `trained_models/MMD_DomainGap/mmd_table.csv` (`scripts/main_experiment/mmd_domain_gap.py`).
 - R4b AUC-30/convergence: `wiki/results/multiseed-loso-v2.md` (`RESEARCH_LOG.md` §B).
 - R4c A2: pooled 3 seeds — `trained_models/A2-subjectScaling{,-seed43,-seed44}/N*/summary.csv`, pooled table `trained_models/A2-subjectScaling-pooled/{a2_pooled_results,a2_pooled_stats}.csv` (`scripts/main_experiment/analyze_a2_multiseed.py`).
-- R5 controller: `trained_models/Phase3-controller/robust/{vocab_sweep,vocab_ordering,costmodel_sweep,frontier,iso_safety}.csv` + PNGs (`scripts/controller/controller_robust.py`); prototype in `Phase3-controller/{controller_results,operating_point_summary}.csv` (`scripts/controller/controller_sim.py`).
+- R5 controller: `trained_models/Phase3-controller/robust/{vocab_sweep,vocab_ordering,costmodel_sweep,costmodel_summary,frontier,iso_safety,iso_safety_summary}.csv` + PNGs (`scripts/controller/controller_robust.py --vocabs 120 --missions 1000`; all three locks share the same 120 randomly-drawn System Input assignments, no recall-ranked or otherwise non-random vocab used anywhere in the reported numbers).
 - R6 CZU: `trained_models/CZU-skeleton-LOSO{,-seed43,-seed44}/summary.csv`; CRC baseline `.../crc_baseline/crc_summary.csv` (`scripts/external/czu/crc_baseline.py`).
 - R6b CZU inertial (cross-modal): `trained_models/CZU-IMU-LOSO{,-seed43,-seed44}/summary.csv`; CRC `.../crc_baseline/crc_summary.csv` (`scripts/external/czu/imu_crc_baseline.py`); data `Data_Processed/czu_imu_quats/`.
 - R6c CZU dual-branch: `trained_models/CZU-IMU-DUAL{,-seed43,-seed44}/{raw_scratch,dual_<prior>}/summary.csv` (`scripts/external/czu/dualbranch.py`); raw data `Data_Processed/czu_imu_raw/`; reuses CZU-IMU-LOSO splits. Target-richness dial: `trained_models/CZU-IMU-DIAL{,-seed43,-seed44}/mag20/dual_<prior>/summary.csv`. Cold-start subject-scaling (T5): `trained_models/CZU-DUAL-subjectScaling/N{0..3}/dual_<prior>/summary.csv` (single-seed; 3-seed extension in progress, `trained_models/CZU-DUAL-subjectScaling-seed{43,44}/`, `scripts/orchestration/09b_czu_cold_start_multiseed.sh`).

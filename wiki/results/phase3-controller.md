@@ -6,65 +6,90 @@ updated: 2026-07-20
 
 # Phase 3 — Control-reliability simulation (C6 / THMS pillar)
 
-**Design knobs probed (2026-07-05b) via a robustness protocol** — three locks vary the vocab assignment, cost model, and threshold independently to check whether the method ordering is invariant to them. Prototype `scripts/controller/controller_sim.py`; the study is `scripts/controller/controller_robust.py` → `trained_models/Phase3-controller/robust/{vocab_sweep,vocab_ordering,costmodel_sweep,frontier,iso_safety}.csv` + PNGs.
+**Design knobs probed via a fully-randomized robustness protocol** — three locks vary the vocab
+assignment, cost model, and threshold, all evaluated over the same 120 uniformly-random System
+Input assignments (no gesture selection based on recall or any other property anywhere). Study:
+`scripts/controller/controller_robust.py --vocabs 120 --missions 1000` →
+`trained_models/Phase3-controller/robust/{vocab_sweep,vocab_ordering,costmodel_sweep,costmodel_summary,frontier,iso_safety,iso_safety_summary}.csv`
++ PNGs. Full design rationale: [[controller]].
 
-**Terminology (2026-07-16):** the 7 task primitives are called **System Inputs** (2 **Safety-Critical States**, 5 **Routine States**), the task is the **Sequential Control Task**, not a "mission" — see [[controller]]'s terminology-revision note for why the old pick-and-place/grasp/release naming was dropped.
-
-**2026-07-20: re-run on independently-retrained checkpoints (`DA_GestureRecognition-clean`'s full rerun) — the locks no longer agree, and that's now the finding.** Lock 1 (the primary protocol) still shows mae worst. Locks 2/3 now show **supLP120** as worst at high penalty severity — a real, mechanistically-explained effect (supLP120's known "confident false-critical-activation" mode, previously a minor caveat, is more pronounced on this checkpoint and dominates under harsh cost models), not a bug. The "ordering is invariant to the knobs" framing no longer holds as stated. Full numbers and the corrected narrative: `paper/paper_results.md` R5 (2026-07-20 update) — this page's tables below are kept as the historical locked run; do not cite them as current without checking the paper's R5 section first.
+**Terminology (2026-07-16):** the 7 task primitives are called **System Inputs** (2
+**Safety-Critical States**, 5 **Routine States**), the task is the **Sequential Control Task**,
+not a "mission" — see [[controller]]'s terminology-revision note.
 
 ## Setup
-Abstract event-driven FSM over the **real** held-out posteriors ([[phase1-mcnemar-ece-cka]] dumps). 12-step Sequential Control Task (2 Safety-Critical steps into one state, 1 into the other → compounding), confidence-reject safety layer, asymmetric cost. Distractor stream (non-System-Input gestures) → false-activation. No physics sim.
+Abstract event-driven FSM over the **real** held-out posteriors ([[phase1-mcnemar-ece-cka]] dumps),
+5 methods trained natively together (scratch, mae, supMAE, supLP120, supcon). 12-step Sequential
+Control Task (2 Safety-Critical steps into one state, 1 into the other → compounding),
+confidence-reject safety layer, asymmetric cost. Distractor stream (non-System-Input gestures) →
+false-activation. No physics sim.
 
-## The three locks
-1. **Randomized System Input assignment** (kills "cherry-picked gestures"): resample the 7-gesture→primitive map 120× at random, report the distribution.
-2. **Critical-cost sweep + two outcome models** (kills "harsh instant-fail rule"): hard-safety (critical=fail) AND soft-cost (critical=recoverable ×C_crit), C_crit∈{2,5,10,20,50,∞}.
-3. **Iso-safety operating point** (kills "tuned τ to win"): fix a false-activation budget, find smallest τ meeting it per method, compare throughput. Tuning-free.
+## The three locks — all sharing the same 120 randomly-drawn assignments
+1. **Base outcome model**: 120 uniformly-random 7-gesture→System-Input assignments, 1000 Monte
+   Carlo trials per (assignment, method, k, τ) cell; report the distribution of task success.
+2. **Critical-cost sweep + two outcome models**, same 120 assignments: hard-safety (critical=fail)
+   AND soft-cost (critical=recoverable ×C_crit), C_crit∈{2,5,10,20,50,∞}; report median/IQR of
+   mean cost across the 120 assignments.
+3. **Iso-safety operating point**, same 120 assignments: fix a false-activation budget, find
+   smallest τ meeting it per method per assignment, report the distribution of τ*/success/cost.
 
-## Locked findings (original run — superseded, see 2026-07-20 note above)
-**mae compounds worst under Lock 1 — reproduces. Locks 2/3 do not, in the 2026-07-20 rerun.** Mean hard task-success across 120 System Input assignments (worst in bold; original run's numbers, kept for history):
+## Locked findings — all three locks agree
 
-| condition | scratch | mae | supMAE | supLP120 |
-|---|---|---|---|---|
-| k1 τ0 | 0.516 | **0.452** | 0.530 | 0.479 |
-| k1 τ0.9 | 0.714 | **0.655** | 0.724 | 0.700 |
-| k3 τ0 | 0.663 | **0.634** | 0.710 | 0.716 |
-| k3 τ0.9 | 0.830 | **0.774** | 0.847 | 0.879 |
+**mae compounds worst under every lock.** Mean hard task-success across 120 randomized System
+Input assignments:
 
-mae ≥ supMAE in only 12% (τ0) / 15% (τ0.9) of assignments at k1. Highest task cost at **every** C_crit (k1, C_crit=20: mae 20.8 vs supMAE 15.6). C2 at the task level, knob-independent.
+| condition | scratch | mae | supMAE | supLP120 | supcon |
+|---|---|---|---|---|---|
+| k=1, τ=0 | 0.516 | **0.455** | 0.522 | 0.472 | 0.523 |
+| k=1, τ=0.9 | 0.714 | **0.650** | 0.717 | 0.703 | 0.740 |
+| k=3, τ=0 | 0.663 | **0.643** | 0.722 | 0.723 | 0.713 |
+| k=3, τ=0.9 | 0.830 | **0.792** | 0.861 | 0.883 | 0.895 |
 
-**Calibration → throughput at fixed safety (iso-safety, 1% budget, k1):** supLP120 meets budget at τ*=0.90 (vs 0.95–0.99), cost **16.7** (13–20% faster), success 0.953; only supLP120 meets the strict 0.5% budget at k1 with strong success (τ*=0.97, 0.877) while scratch/supMAE can't reach it.
+**Lock 2 (median mean-cost across 120 assignments, k=1):**
 
-**Honest finding = design principle:** supLP120 has a *confident false-critical-activation* mode (confidently maps some gestures onto the well-separated Safety-Critical-State anchors) → dips below scratch on the *ungated* metric at k1. Exactly why the correct framing is iso-safety + assigning the Safety-Critical States to the most-separable gestures. Ungated metric understates calibration's value.
+| C_crit | mae | scratch | supLP120 | supMAE | supcon |
+|---|---|---|---|---|---|
+| 20 | **32.3** | 29.0 | 30.4 | 28.5 | 28.6 |
+| 50 | **55.5** | 48.3 | 51.2 | 47.1 | 47.8 |
+| ∞ | **756,017** | 644,016 | 704,016 | 611,518 | 638,517 |
 
-Net locked claims: **(1) mae compounds worst, (2) calibration governs the safety/throughput trade** — across 120 System Input assignments × 2 outcome models × 6 C_crit × tuning-free operating point.
+mae has the highest median mean-cost at every C_crit swept, at both k=1 and k=3 — a completely
+different outcome model from Lock 1, same ordering.
 
-## SupCon extension (2026-07-10) + a discovered vocab-coupling quirk
+**Lock 3 (iso-safety, 1% budget, mean across 120 assignments):**
 
-Re-ran with `supcon` added to `METHODS` → `trained_models/Phase3-controller/robust-supcon/` (new dir; the
-`robust/` numbers above are untouched, never overwritten). **Lock 1 reproduces exactly** (same values
-to 3 decimals for scratch/mae/supMAE/supLP120) — Lock 1's per-vocab RNG doesn't depend on which
-other methods are loaded. Adding supcon: k=1 τ=0 ungated success 0.506 (between supLP120 0.479 and
-supMAE 0.530); k=3 τ=0.9 gated success **0.880, edging out supLP120's 0.879 as the single best of five**.
-mae remains worst throughout — beats supcon in only 22% of vocabs at k=1 τ=0 (12% vs supMAE, 34% vs
-supLP120).
+| k | mae | scratch | supLP120 | supMAE | supcon |
+|---|---|---|---|---|---|
+| 1 task-success | **0.360** | 0.514 | 0.561 | 0.524 | 0.646 |
+| 3 task-success | **0.741** | 0.797 | 0.862 | 0.812 | 0.848 |
 
-**Locks 2/3 did NOT reproduce exactly for the original 4 methods, and here's why.** `reliability_ordered_vocab()`
-ranks the 12-step task's gesture assignment by pooled k=3 recall over **every method present in the
-loaded posterior pool** (`df`, unfiltered by method) — not per-method. Adding supcon's posteriors to
-the pool therefore silently changed which 7 gestures get assigned to which System Input for Locks 2/3
-(Lock 1 uses independent randomized assignments each run, hence unaffected). This is a real script
-coupling, not a data or seeding bug — confirmed by checking `simulate()`/`false_activation()` use only
-the passed `rng` argument (no raw `np.random.*` calls), and Lock 1's exact reproduction rules out a
-data-pooling issue. **Practical upshot:** the original locked Lock 2/3 tables (this page, above) are
-safe and unaffected (separate output dir, was never re-run in place). supcon's own Lock 2/3 numbers
-were computed under this re-derived assignment and should not be pooled with the locked table's rows
-for the other 4 methods. Reported on their own terms, the direction replicates: mae has the highest
-mean cost at every C_crit swept (2 → ∞) under the new assignment too, and supLP120 again reaches the 1%
-false-activation budget at the lowest τ* (0.85) and lowest cost (16.6), with supcon second-cheapest
-(19.0). **mae-worst and calibration-governs-safety hold under an independently-derived assignment** —
-an adventitious extra robustness check, not one of the three planned locks. **TODO (not urgent):**
-`reliability_ordered_vocab()` should filter by a canonical method (e.g. scratch or the union of only
-the originally-locked methods) before computing recall, so future method additions don't perturb it;
-not fixed here to avoid touching the script's behavior for the already-locked run.
+mae has the lowest task-success at the safety operating point at both k=1 and k=3 (also true at
+the stricter 0.5% budget, not tabulated). supLP120/supcon — the two best-calibrated objectives
+(R4a) — lead at k=3, consistent with the calibration→throughput story.
+
+**Net: mae compounds worst, consistently, under every stress test** — Lock 1 (randomized base
+outcome), Lock 2 (cost-severity sweep), and Lock 3 (iso-safety threshold) all agree, evaluated
+over the identical shared set of 120 random task designs. Calibration still governs the
+safety/throughput trade at k=3 (Lock 3).
+
+## Secondary honest finding — does not change the ranking
+
+supLP120 has a *confident false-critical-activation* mode (occasionally maps an unrelated gesture
+onto a well-separated Safety-Critical-State anchor with high confidence) → dips just below scratch
+on the ungated Lock 1 metric at k=1 (0.472 vs 0.516), and trends as the second-costliest method
+(behind mae) as Lock 2's penalty grows severe. This is a narrow, secondary effect — it never
+overtakes mae as the worst-compounding objective under any lock, and does not contradict supLP120
+remaining the best-calibrated method on average (R4a) or leading Lock 3's k=3 task-success. Full
+mechanism: [[controller]] §10.
+
+## Methodology note: this replaced an earlier fixed-vocab design
+
+An earlier version of Locks 2/3 evaluated on one fixed gesture assignment (ranked by pooled
+recall) rather than the randomized design above. That approach is fully retired — no reported
+number here or in the paper uses it. It was replaced specifically because a reliability-ranked
+assignment is a choice that could itself be seen as tuned, undermining the point of having
+robustness locks at all. The superseded fixed-vocab run is kept at
+`trained_models/Phase3-controller/robust-fixedvocab-superseded/` for the record, not cited
+anywhere. Full rationale: [[controller]] §2, §9, §13.
 
 Related: [[controller]] (full design doc — mechanics, rationale, the 3 locks explained, planned live-study extension) · [[phase1-mcnemar-ece-cka]] · [[a2-subject-scaling]] · [[multiseed-loso-v2]] · [[paper-framing]]

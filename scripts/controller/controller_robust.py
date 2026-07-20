@@ -2,22 +2,31 @@
 """Phase 3 / C6 — ROBUSTNESS version: lock the controller design knobs by showing
 the method ORDERING is invariant to them, rather than freezing arbitrary values.
 
-Three locks (each kills a reviewer objection to controller_sim.py):
+Three locks, all evaluated over the SAME set of `--vocabs` randomly-drawn System
+Input assignments (2026-07-20: Locks 2/3 previously ran on one fixed vocab picked
+by recall-rank -- reliability_ordered_vocab() below, now unused by the main sweeps
+-- replaced with full Monte Carlo randomization so no lock's finding depends on a
+non-random gesture selection):
   1. Command-gesture set  -> randomize over many vocabularies; report the
      DISTRIBUTION of the method ordering (kills "you cherry-picked easy gestures").
   2. Critical-error rule   -> two outcome models (hard-safety binary + soft-cost)
-     with a swept critical-cost C_crit; show ordering invariant (kills "the harsh
-     instant-fail rule drives your result").
-  3. Operating threshold   -> ISO-SAFETY operating point: fix a false-activation
-     budget, find tau meeting it per method, compare throughput (kills "you tuned
-     tau to win"). Full tau-frontier also reported.
+     with a swept critical-cost C_crit, over the same randomized vocabularies;
+     report the distribution of mean cost per (method,k,C_crit) (kills "the harsh
+     instant-fail rule drives your result" AND "you cherry-picked the gestures").
+  3. Operating threshold   -> ISO-SAFETY operating point over the same randomized
+     vocabularies: fix a false-activation budget, find tau meeting it per method
+     per vocab, report the distribution of tau*/success/cost (kills "you tuned tau
+     to win" AND "you cherry-picked the gestures"). Full tau-frontier also reported.
 
 Consumes the same real held-out posteriors as controller_sim.py.
 Outputs -> trained_models/Phase3-controller/robust/
-  vocab_sweep.csv        per (vocab, method, k, tau_regime): hard success + soft cost
-  vocab_ordering.csv     distribution of pairwise method deltas across vocabularies
-  costmodel_sweep.csv    per (method, k, C_crit): soft mean-cost (fixed vocab)
-  iso_safety.csv         per (method, k, budget): tau*, task_success, mean_time
+  vocab_sweep.csv          per (vocab, method, k, tau_regime): hard success + soft cost [Lock 1]
+  vocab_ordering.csv       distribution of pairwise method deltas across vocabularies [Lock 1]
+  costmodel_sweep.csv      per (vocab, method, k, C_crit): soft mean-cost [Lock 2, per-vocab]
+  costmodel_summary.csv    per (method, k, C_crit): mean/median/IQR of mean_cost across vocabs [Lock 2]
+  frontier.csv             per (vocab, method, k, tau): success + false-activation [Lock 3, per-vocab]
+  iso_safety.csv           per (vocab, method, k, budget): tau*, task_success, mean_cost [Lock 3, per-vocab]
+  iso_safety_summary.csv   per (method, k, budget): median/IQR tau*, mean success/cost, budget-met fraction [Lock 3]
   *.png figures
 """
 import os, glob, json, argparse
@@ -132,7 +141,9 @@ def make_prim_of_id(vocab_ids, n_classes):
 
 
 def reliability_ordered_vocab(df, labelmap, exclude_locomotion=True):
-    """The illustrative named mapping: rank by pooled k=3 recall, most-reliable -> most-critical."""
+    """Historical: rank by pooled k=3 recall, most-reliable -> most-critical. Kept for reference
+    and printed at startup for transparency, but no longer used by Locks 2/3 (2026-07-20) --
+    all three locks now evaluate over the same randomized vocabularies, see module docstring."""
     k3 = df[df.k == 3]
     rec = k3.assign(ok=(k3.pred_id == k3.true_id)).groupby("true_id")["ok"].mean()
     EXCL = {"walk", "runonspot", "turnaround", "buttkicks", "hop", "jump", "stand"}
@@ -151,9 +162,13 @@ def main():
     global OUT
     ap = argparse.ArgumentParser()
     ap.add_argument("--seed", type=int, default=7)
-    ap.add_argument("--missions", type=int, default=1000)
-    ap.add_argument("--vocabs", type=int, default=120)
-    ap.add_argument("--frontier-missions", type=int, default=3000)
+    ap.add_argument("--missions", type=int, default=1000,
+                     help="Monte Carlo trials per (vocab, method, k, tau/C_crit) cell, "
+                          "used by all three locks.")
+    ap.add_argument("--vocabs", type=int, default=120,
+                     help="Number of randomly-drawn 7-gesture System Input assignments, "
+                          "shared by all three locks (2026-07-20: previously only Lock 1 "
+                          "randomized the vocab; Locks 2/3 now do too).")
     ap.add_argument("--out-dir", default=None,
                      help="Override OUT (default trained_models/Phase3-controller/robust, "
                           "which holds the LOCKED R5 numbers already cited in paper_results.md "
@@ -172,18 +187,26 @@ def main():
     packed = pack(df, labelmap)
     costs = (1.0, 1.0, 3.0, 5)          # T_exec, T_reject, T_correct, MAX_REJECT
     named_vocab = reliability_ordered_vocab(df, labelmap)
-    print("Illustrative (reliability-ordered) vocabulary:")
+    print("Reference-only (reliability-ordered) vocabulary -- no longer used by any lock below:")
     for p, gid in zip(PRIMS, named_vocab):
         print(f"  {p:9s} <- {inv[gid]}")
 
-    # ---------- LOCK 1: randomized command-vocabulary sweep ----------
-    # random 7 distinct gestures -> 7 primitives, each vocab tested at tau=0 (full
-    # compounding) and tau=0.9 (gated). C_crit=inf recovered via hard_success.
+    # ---------- Draw the shared randomized vocabularies ----------
+    # random 7 distinct gestures -> 7 primitives, drawn once and reused identically
+    # across all three locks below, so every lock evaluates the same `args.vocabs`
+    # random task designs (2026-07-20: this is the change that removed Locks 2/3's
+    # dependence on the fixed reliability-ranked vocab above).
     rng = np.random.default_rng(args.seed)
     all_ids = np.arange(n_classes)
+    vocab_ids_list = [list(rng.choice(all_ids, size=7, replace=False)) for _ in range(args.vocabs)]
+    print(f"\nDrew {args.vocabs} random 7-gesture System Input assignments "
+          f"(seed={args.seed}), shared by Locks 1/2/3.")
+
+    # ---------- LOCK 1: randomized command-vocabulary sweep ----------
+    # each vocab tested at tau=0 (full compounding) and tau=0.9 (gated).
+    # C_crit=inf recovered via hard_success.
     vocab_rows = []
-    for v in range(args.vocabs):
-        vids = list(rng.choice(all_ids, size=7, replace=False))
+    for v, vids in enumerate(vocab_ids_list):
         prim_of_id = make_prim_of_id(vids, n_classes)
         for k in (1, 3):
             for tau in (0.0, 0.9):
@@ -193,7 +216,7 @@ def main():
                                  n_missions=args.missions)
                     vocab_rows.append(dict(vocab=v, method=method, k=k, tau=tau, **r))
         if (v + 1) % 20 == 0:
-            print(f"  vocab sweep {v+1}/{args.vocabs}")
+            print(f"  Lock 1 (vocab sweep) {v+1}/{args.vocabs}")
     vdf = pd.DataFrame(vocab_rows)
     vdf.to_csv(os.path.join(OUT, "vocab_sweep.csv"), index=False)
 
@@ -224,57 +247,85 @@ def main():
             print(f"  k={k} tau={tau}:")
             print(m.reindex(index=METHODS, columns=METHODS).to_string())
 
-    # ---------- LOCK 2: critical-cost sweep (fixed named vocab) ----------
-    prim_named = make_prim_of_id(named_vocab, n_classes)
+    # ---------- LOCK 2: critical-cost sweep, over the same randomized vocabularies ----------
     cc_rows = []
-    for C_crit in [2.0, 5.0, 10.0, 20.0, 50.0, 1e6]:
-        for k in (1, 3):
-            for method in METHODS:
-                r = simulate(packed[method][k], prim_named, tau=0.0, C_crit=C_crit,
-                             costs=costs, rng=np.random.default_rng(args.seed),
-                             n_missions=args.frontier_missions)
-                cc_rows.append(dict(method=method, k=k, C_crit=C_crit,
-                                    mean_cost=r["mean_cost"], hard_success=r["hard_success"]))
+    for v, vids in enumerate(vocab_ids_list):
+        prim_of_id = make_prim_of_id(vids, n_classes)
+        for C_crit in [2.0, 5.0, 10.0, 20.0, 50.0, 1e6]:
+            for k in (1, 3):
+                for method in METHODS:
+                    r = simulate(packed[method][k], prim_of_id, tau=0.0, C_crit=C_crit,
+                                 costs=costs, rng=np.random.default_rng(2000 + v),
+                                 n_missions=args.missions)
+                    cc_rows.append(dict(vocab=v, method=method, k=k, C_crit=C_crit,
+                                        mean_cost=r["mean_cost"], hard_success=r["hard_success"]))
+        if (v + 1) % 20 == 0:
+            print(f"  Lock 2 (cost-severity sweep) {v+1}/{args.vocabs}")
     ccdf = pd.DataFrame(cc_rows)
     ccdf.to_csv(os.path.join(OUT, "costmodel_sweep.csv"), index=False)
+    cc_summary = ccdf.groupby(["method", "k", "C_crit"])["mean_cost"].agg(
+        mean="mean", median="median",
+        q25=lambda s: s.quantile(.25), q75=lambda s: s.quantile(.75),
+    ).reset_index()
+    cc_summary.to_csv(os.path.join(OUT, "costmodel_summary.csv"), index=False)
 
-    # ---------- LOCK 3: iso-safety operating point (fixed named vocab) ----------
-    vocab_ids = np.array(named_vocab)
+    # ---------- LOCK 3: iso-safety operating point, over the same randomized vocabularies ----------
     fr_rows = []
-    for k in (1, 3):
-        for tau in TAUS:
-            for method in METHODS:
-                r = simulate(packed[method][k], prim_named, tau=float(tau), C_crit=20.0,
-                             costs=costs, rng=np.random.default_rng(args.seed),
-                             n_missions=args.frontier_missions)
-                fa = false_activation(packed[method][k], prim_named, float(tau),
-                                      vocab_ids, np.random.default_rng(args.seed))
-                fr_rows.append(dict(method=method, k=k, tau=float(tau),
-                                    false_activation=fa, **r))
+    iso_rows = []
+    for v, vids in enumerate(vocab_ids_list):
+        prim_of_id = make_prim_of_id(vids, n_classes)
+        vocab_ids_arr = np.array(vids)
+        vocab_frontier = []
+        for k in (1, 3):
+            for tau in TAUS:
+                for method in METHODS:
+                    r = simulate(packed[method][k], prim_of_id, tau=float(tau), C_crit=20.0,
+                                 costs=costs, rng=np.random.default_rng(3000 + v),
+                                 n_missions=args.missions)
+                    fa = false_activation(packed[method][k], prim_of_id, float(tau),
+                                          vocab_ids_arr, np.random.default_rng(3000 + v))
+                    row = dict(vocab=v, method=method, k=k, tau=float(tau),
+                               false_activation=fa, **r)
+                    fr_rows.append(row)
+                    vocab_frontier.append(row)
+        vfr = pd.DataFrame(vocab_frontier)
+        for budget in (0.01, 0.005):
+            for k in (1, 3):
+                for method in METHODS:
+                    s = vfr[(vfr.method == method) & (vfr.k == k)].sort_values("tau")
+                    ok = s[s.false_activation <= budget]
+                    if len(ok):
+                        row = ok.iloc[0]                     # smallest tau meeting budget
+                        iso_rows.append(dict(vocab=v, method=method, k=k, budget=budget,
+                                             tau_star=round(float(row.tau), 3),
+                                             task_success=round(float(row.hard_success), 4),
+                                             mean_cost=round(float(row.mean_cost), 3),
+                                             false_activation=round(float(row.false_activation), 5)))
+                    else:
+                        iso_rows.append(dict(vocab=v, method=method, k=k, budget=budget,
+                                             tau_star=None, task_success=None,
+                                             mean_cost=None, false_activation=None))
+        if (v + 1) % 20 == 0:
+            print(f"  Lock 3 (iso-safety sweep) {v+1}/{args.vocabs}")
     frdf = pd.DataFrame(fr_rows)
     frdf.to_csv(os.path.join(OUT, "frontier.csv"), index=False)
-
-    iso_rows = []
-    for budget in (0.01, 0.005):
-        for k in (1, 3):
-            for method in METHODS:
-                s = frdf[(frdf.method == method) & (frdf.k == k)].sort_values("tau")
-                ok = s[s.false_activation <= budget]
-                if len(ok):
-                    row = ok.iloc[0]                     # smallest tau meeting budget
-                    iso_rows.append(dict(method=method, k=k, budget=budget,
-                                         tau_star=round(float(row.tau), 3),
-                                         task_success=round(float(row.hard_success), 4),
-                                         mean_cost=round(float(row.mean_cost), 3),
-                                         false_activation=round(float(row.false_activation), 5)))
-                else:
-                    iso_rows.append(dict(method=method, k=k, budget=budget,
-                                         tau_star=None, task_success=None,
-                                         mean_cost=None, false_activation=None))
     isodf = pd.DataFrame(iso_rows)
     isodf.to_csv(os.path.join(OUT, "iso_safety.csv"), index=False)
-    print("\nLOCK3 iso-safety (smallest tau with false-activation <= budget):")
-    print(isodf.to_string(index=False))
+
+    meets_budget = isodf.groupby(["method", "k", "budget"])["tau_star"].apply(
+        lambda s: s.notna().mean()).rename("meets_budget_frac")
+    iso_ok = isodf.dropna(subset=["tau_star"])
+    iso_summary = iso_ok.groupby(["method", "k", "budget"]).agg(
+        tau_star_median=("tau_star", "median"),
+        tau_star_q25=("tau_star", lambda s: s.quantile(.25)),
+        tau_star_q75=("tau_star", lambda s: s.quantile(.75)),
+        task_success_mean=("task_success", "mean"),
+        mean_cost_mean=("mean_cost", "mean"),
+    ).reset_index().merge(meets_budget.reset_index(), on=["method", "k", "budget"])
+    iso_summary.to_csv(os.path.join(OUT, "iso_safety_summary.csv"), index=False)
+    print("\nLOCK3 iso-safety summary (median tau*, mean success/cost, fraction of "
+          f"{args.vocabs} vocabs meeting budget):")
+    print(iso_summary.to_string(index=False))
 
     # ---------- figures ----------
     import matplotlib; matplotlib.use("Agg")
@@ -292,25 +343,30 @@ def main():
         ax.set_ylabel("hard task-success"); ax.grid(alpha=.3, axis="y")
     fig.tight_layout(); fig.savefig(os.path.join(OUT, "vocab_distribution.png"), dpi=110)
 
-    # LOCK2 cost vs C_crit
+    # LOCK2 median cost vs C_crit, across the vocab distribution (shaded IQR band)
     fig, axes = plt.subplots(1, 2, figsize=(13, 4.5))
     for ax, k in zip(axes, (1, 3)):
         for m in METHODS:
-            s = ccdf[(ccdf.method == m) & (ccdf.k == k)].sort_values("C_crit")
-            ax.plot(s.C_crit, s.mean_cost, "-o", color=colors[m], label=m, ms=4)
-        ax.set_xscale("log"); ax.set_title(f"k={k}: mean mission cost vs critical penalty")
+            s = cc_summary[(cc_summary.method == m) & (cc_summary.k == k)].sort_values("C_crit")
+            ax.plot(s.C_crit, s["median"], "-o", color=colors[m], label=m, ms=4)
+            ax.fill_between(s.C_crit, s.q25, s.q75, color=colors[m], alpha=.15)
+        ax.set_xscale("log"); ax.set_title(f"k={k}: median mission cost vs critical penalty "
+                                            f"(IQR across {args.vocabs} vocabs)")
         ax.set_xlabel("C_crit (log)"); ax.set_ylabel("mean cost"); ax.grid(alpha=.3); ax.legend()
     fig.tight_layout(); fig.savefig(os.path.join(OUT, "costmodel_sweep.png"), dpi=110)
 
-    # LOCK3 frontier (task-success vs false-activation)
+    # LOCK3 frontier (task-success vs false-activation), averaged across vocabs per tau
+    frontier_summary = frdf.groupby(["method", "k", "tau"]).agg(
+        hard_success=("hard_success", "mean"), false_activation=("false_activation", "mean"),
+    ).reset_index()
     fig, axes = plt.subplots(1, 2, figsize=(13, 4.5))
     for ax, k in zip(axes, (1, 3)):
         for m in METHODS:
-            s = frdf[(frdf.method == m) & (frdf.k == k)].sort_values("false_activation")
+            s = frontier_summary[(frontier_summary.method == m) & (frontier_summary.k == k)].sort_values("false_activation")
             ax.plot(s.false_activation, s.hard_success, "-o", color=colors[m], label=m, ms=4)
         for b in (0.01, 0.005):
             ax.axvline(b, ls="--", c="k", alpha=.3)
-        ax.set_title(f"k={k}: safety/throughput frontier (tau sweep)")
+        ax.set_title(f"k={k}: safety/throughput frontier (tau sweep, mean across {args.vocabs} vocabs)")
         ax.set_xlabel("false-activation rate"); ax.set_ylabel("task-success")
         ax.grid(alpha=.3); ax.legend()
     fig.tight_layout(); fig.savefig(os.path.join(OUT, "frontier.png"), dpi=110)

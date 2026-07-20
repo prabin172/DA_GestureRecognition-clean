@@ -2,6 +2,55 @@
 
 Append-only. Entry format: `## [YYYY-MM-DD] ingest|update|query|lint | title`.
 
+## [2026-07-20] update | Controller Locks 2/3 fully randomized (was fixed recall-ranked vocab); all three locks now agree mae compounds worst
+User was preparing to discuss the controller pillar (R5) with their advisor for the first time and
+pushed back hard on the earlier framing: (1) paper prose should never narrate revision history
+("was X, now Y") — state only the final valid result, unless both versions are genuinely part of
+the scientific narrative (see the new `feedback_paper_writing_no_revision_history` memory);
+(2) the controller docs/slides never explained the Monte Carlo mechanics (iteration counts,
+randomization counts) in the first place; (3) most importantly — Locks 2 and 3 (cost-severity
+sweep, iso-safety threshold) were still evaluating on the one fixed, recall-ranked gesture
+assignment (`reliability_ordered_vocab()`) that the project had already decided to move away from
+specifically to avoid any appearance of cherry-picking. Only Lock 1 had ever been fully randomized.
+
+**Fix (user's explicit choice among three options — "fix the code too, rerun Locks 2/3 over
+randomized vocabs"):** rewrote `scripts/controller/controller_robust.py` so all three locks now
+draw and share the same 120 uniformly-random 7-gesture System Input assignments (`vocab_ids_list`,
+generated once, reused across Locks 1/2/3) — `reliability_ordered_vocab()` is no longer called by
+any lock, kept only as a startup print for transparency. Lock 2/3 output changed from single-vocab
+points to per-vocab rows plus aggregated summaries (`costmodel_summary.csv`,
+`iso_safety_summary.csv`, median/IQR across the 120 assignments). Smoke-tested at small scale, then
+the full production run (120 vocabs × 1000 missions, all 3 locks) completed in 4m38s — fast enough
+that there was no reason not to match Lock 1's full rigor everywhere. Backed up the old fixed-vocab
+output to `trained_models/Phase3-controller/robust-fixedvocab-superseded/` (not cited anywhere)
+before overwriting `robust/` with the new run.
+
+**Result: the earlier Lock1-vs-Lock2/3 disagreement (supLP120 "worst" under the old fixed vocab)
+turned out to be entirely an artifact of that one non-random gesture selection.** Under full
+randomization, all three locks agree: mae compounds worst — Lock 1 (task-success, both τ and both
+k), Lock 2 (highest median cost at every C_crit, both k), and Lock 3 (lowest task-success at the
+safety operating point, both k, both budgets). supLP120's confident-false-critical-activation mode
+(documented since before this session) still shows up as a narrow secondary nuance — a dip below
+scratch at k=1 ungated, second-costliest under severe Lock 2 penalties — but never displaces mae as
+worst under any lock. This is a substantially cleaner, more defensible result than either the
+original fixed-vocab run or last week's "locks disagree" framing.
+
+**Propagated:** `scripts/controller/controller_robust.py` (code + module docstring),
+[[controller]] (§2 mapping section rewritten around full randomization, §8 prototype demoted to
+"not used for any reported number," §9 rewritten, §10 reframed as secondary nuance not
+disagreement, §13 gotchas updated), [[phase3-controller]] (fully rewritten with new numbers),
+`wiki/index.md`, `paper/paper_results.md` R5 (rewritten as one coherent finding, explicit Monte
+Carlo mechanics stated), `paper/paper_method.md` §8.1, and the controller-terminology sentences in
+`paper_abstract.md`/`paper_intro.md`/`paper_conclusion.md`/`paper_discussion.md` (all reverted from
+"no objective is safe under every stress test" back to a confident "mae compounds worst under every
+stress test" claim, now that it's actually true again). Also caught and fixed two pre-existing stale
+spots unrelated to this fix while regenerating `paper_method.md`: a "SupCon as scoped exhibit"
+sentence (contradicted the rest of the paper, which already treats supcon as a full 5th objective)
+and a description of a vocab-perturbation bug that no longer exists post-fix. Regenerated all
+`paper/*.tex` via `md2tex.py`; verified no stale phrases remain via grep sweep. Advisor slide deck
+(`paper/controller_advisor_slides.{md,pptx}`) rewritten to match — the "open question" slide is now
+a single clean "all three checks agree" results slide instead of an unresolved disagreement.
+
 ## [2026-07-20] update | Old repo local folder deleted after full rerun confirmed superseding it; sole active repo now
 User authorized deleting `~/projects/DA_GestureRecognition` (the original repo) locally after
 confirming the 2026-07-15 full rerun's `trained_models/` structurally supersedes its separately-bolted
