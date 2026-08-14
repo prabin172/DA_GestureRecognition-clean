@@ -2,6 +2,50 @@
 
 Append-only. Entry format: `## [YYYY-MM-DD] ingest|update|query|lint | title`.
 
+## [2026-07-21] update | Cross-setting controller finding folded into paper as R5b; stale §8 paragraph fixed
+User asked to fold the controller cross-setting extension (previous log entry) into the paper.
+Added as `paper_results.md` R5b (right after R5's Lock3/"all three locks agree" paragraph, before
+R6) — table + synthesis paragraph, no revision-history narration. Added a method sentence to
+`paper_method.md` §8.1 and a new limitations bullet to `paper_discussion.md`. While placing the new
+content, found `paper_method.md` §8's own "Action-primitive assignment" paragraph (above §8.1) still
+described the retired reliability-ranked vocab ("two most reliably-recognized gestures assigned to
+Safety-Critical States") — missed during the 2026-07-20 randomization fix, which only touched §8.1
+and `paper_results.md`, not this general-description paragraph. Fixed to describe the actual uniform
+random draw; also fixed a stale `temp_controller_sim.py` path reference in the same section.
+Regenerated all `.tex` files, grepped clean for stale phrases. `wiki/results/phase3-controller-crosssetting.md`
+and `wiki/index.md` updated to reflect paper status.
+
+## [2026-07-21] ingest | Controller cross-setting extension: Lock1+Lock2 across all 5 transfer settings
+User asked to reproduce Locks 1+2 (no Lock 3) of the controller's randomized robustness protocol
+across every transfer setting with compatible posteriors, not just NTU→Xsens: CZU skeleton, CZU IMU
+orientation-only, UTD skeleton, CZU dual-raw. First-verified before touching anything: 3 of the 4
+new settings already had trained checkpoints (`loso_fulltrain_calibration.py`), so posteriors could
+be dumped via existing `dump_posteriors.py` with no retraining. CZU dual-raw (`dualbranch.py --mode
+dual`) never persisted checkpoints or posteriors anywhere — only aggregate accuracy — flagged to the
+user before proceeding; user chose to retrain it. Patched `dualbranch.py` with an opt-in
+`--dump-posteriors-dir` flag (backward-compatible, smoke-tested), retrained all 3 seeds × 5 priors ×
+mode=dual into new out-roots (existing locked `CZU-IMU-DUAL*/summary.csv`, cited in `paper_results.md`
+R6c, untouched), verified the retrain's own accuracy matches the locked R6c numbers within ≤0.3pp.
+Wrote `scripts/controller/controller_crosssetting.py` (Lock1+Lock2 logic refactored generic over a
+settings dict, `controller_robust.py` itself untouched). Result: the two locks agree with each other
+exactly on the two settings with a large/significant recognition-level effect (NTU→Xsens's mae,
+CZU dual-raw's supcon — both reproduce the recognition table almost exactly); they disagree on the
+three settings where the recognition-level effect is itself small or non-significant. Not yet folded
+into the paper — presented as an exploratory finding pending human decision. Full writeup:
+[[phase3-controller-crosssetting]].
+
+## [2026-07-21] query | THMS venue-precedent literature re-checked; two citation-date errors fixed, two papers added
+User asked for the closest IEEE THMS paper(s) to this work. Web-verified against IEEE Xplore: the
+two THMS precedents already in `literature-landscape.md` had wrong years (Guo/Liu/Liu's
+Cross-Model-Cross-Stream paper is THMS **2024** not 2023; Rahimi Taghanaki et al.'s time-frequency
+contrastive HAR paper is THMS **Dec 2023** not 2022 — both errors were arXiv-preprint-date vs
+journal-pub-date confusion). Added two more: Zhao/Deng/He/Chen "Local Domain Adaptation for
+Cross-Domain Activity Recognition" (THMS 2021, closest on the domain-gap/MMD framing) and
+Chiang/Lu/Hsu "A Feature-Based Knowledge Transfer Framework for Cross-Environment Activity
+Recognition" (THMS 2017, more distant — ambient/smart-home sensors not skeleton→wearable). None of
+the four combine the pretraining-objective comparison with a skeleton→IMU gap + downstream
+controller — the headline "gap is ours" claim stands. See [[literature-landscape]].
+
 ## [2026-07-20] update | Controller Locks 2/3 fully randomized (was fixed recall-ranked vocab); all three locks now agree mae compounds worst
 User was preparing to discuss the controller pillar (R5) with their advisor for the first time and
 pushed back hard on the earlier framing: (1) paper prose should never narrate revision history

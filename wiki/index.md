@@ -1,7 +1,7 @@
 ---
 type: index
 status: active
-updated: 2026-07-20
+updated: 2026-07-21
 ---
 
 # Wiki Index
@@ -71,6 +71,7 @@ the two conflict. [[multiseed-loso-v2]] · [[czu-skeleton-loso]] · [[czu-imu-cr
 - [[a2-subject-scaling]] — **Phase 2: prior benefit vs #FT-subjects, 3-seed pooled — peaks N=0/1 (supLP120 +28.3pp @k3,N1, reproduces the original +27.5pp within noise), washes to ≈1–2pp by N=4; mae ≤0 from N≥2** (replaces dead gap-knob). **The most checkpoint-stable result in the paper besides ECE. Caveat: lever is target-representation-contingent, see [[czu-dual-cold-start]]**
 - [[czu-dual-cold-start]] — **T5: does A2's cold-start lever survive on a strong target? No** — neither supLP120 nor supMAE beats scratch at any N on CZU-dual; both significantly worse at N=0,k=1. **3-seed extension launched 2026-07-20, in progress**
 - [[phase3-controller]] — **Phase 3: controller on real posteriors, fully-randomized robustness protocol (120 random System Input assignments × 1000 Monte Carlo trials, shared by all 3 locks — no recall-based or otherwise fixed vocab anywhere). All three locks agree: mae compounds worst under every stress test. supLP120's secondary confident-misfire mode still shows up as a narrow nuance but never overtakes mae. supcon is the standout at k=1.**
+- [[phase3-controller-crosssetting]] — **2026-07-21, now in the paper as R5b: Lock1+Lock2 only, reproduced across all 5 transfer settings with compatible posteriors (NTU→Xsens, CZU skeleton, CZU IMU orientation-only, UTD skeleton, CZU dual-raw — the last required an actual retrain, dualbranch.py never saved checkpoints before). Finding: the two locks agree with each other exactly where the setting's underlying recognition-level effect is large/significant (NTU→Xsens's mae, CZU dual-raw's supcon); they disagree exactly where the recognition-level effect is itself small/marginal. The controller amplifies real signal cleanly and amplifies noise into lock-disagreement — a stress-test harness, not an independent ranking. Also caught & fixed a stale paper_method.md §8 paragraph still describing the retired reliability-ranked assignment.**
 - [[multiseed-loso-v2]] — **3-seed LOSO-v2 stats: accuracy + AUC + convergence; the load-bearing stats** (McNemar now paid in [[phase1-mcnemar-ece-cka]])
 - [[czu-skeleton-loso]] — **CZU-MHAD skeleton→skeleton external validity (R6, pooled 3-seed + supcon, 2026-07-20 reconciled)** — supLP120 +5.0pp @k0 p=.0012 (was +7.2pp, still clearly significant); **supcon +5.2/+4.7/+3.4pp all k, p<.005, beats supLP120 itself p=.044**
 - [[czu-imu-crossmodal]] — **CZU-MHAD skeleton→IMU TRUE cross-modal (R6b, 3-seed pooled + supcon, 2026-07-20: significance weakened to trends)** — direction unchanged (supLP120 trends worst, supMAE trends best) but neither clears p<.05 anymore; the significant version of this contrast now lives in [[czu-imu-dual]]

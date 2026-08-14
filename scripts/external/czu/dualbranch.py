@@ -57,6 +57,7 @@ CALIB_HEAD_LR = 1e-3
 WEIGHT_DECAY = 1e-4
 BASE_SEED = 42
 N_TRAIN_SUBJECTS: Optional[int] = None  # T5: # non-held-out subjects for base fine-tuning (None = all 4)
+DUMP_POSTERIORS_DIR: Optional[Path] = None  # opt-in, controller cross-setting extension (2026-07-21)
 
 PRIOR_CKPT = {
     "scratch": None,
@@ -184,13 +185,32 @@ def make_loader(df, label2id, use_quat, use_raw, shuffle):
 
 
 @torch.no_grad()
-def evaluate(model, loader):
+def evaluate(model, loader, return_preds=False):
     model.eval(); correct = tot = 0
+    all_true, all_pred, all_conf = [], [], []
     for q, rw, m, y in loader:
         q, rw, m, y = q.to(DEVICE), rw.to(DEVICE), m.to(DEVICE), y.to(DEVICE)
-        pred = model(q, rw, m).argmax(1)
+        logits = model(q, rw, m)
+        pred = logits.argmax(1)
         correct += int((pred == y).sum()); tot += int(y.numel())
-    return 100.0 * correct / max(tot, 1)
+        if return_preds:
+            conf = torch.softmax(logits, dim=1).max(1).values
+            all_true.append(y.cpu().numpy()); all_pred.append(pred.cpu().numpy()); all_conf.append(conf.cpu().numpy())
+    acc = 100.0 * correct / max(tot, 1)
+    if return_preds:
+        return acc, (np.concatenate(all_true), np.concatenate(all_pred), np.concatenate(all_conf))
+    return acc
+
+
+def dump_posteriors(out_dir: Path, subject: str, method: str, k: int, true_id, pred_id, conf) -> None:
+    """Controller consumes CSVs with these exact column names (method,k,true_id,pred_id,conf),
+    same schema as scripts/main_experiment/dump_posteriors.py's output -- one unified pack()
+    can then read either source. Opt-in only (--dump-posteriors-dir); no effect on existing
+    raw/quat/DIAL invocations that don't pass it."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(dict(subject=subject, method=method, k=k,
+                      true_id=true_id, pred_id=pred_id, conf=conf)).to_csv(
+        out_dir / f"{subject}_{method}_k{k}.csv", index=False)
 
 
 def train_epoch(model, loader, opt, crit):
@@ -248,7 +268,12 @@ def run_fold(subject, prior, mode, label2id, df):
         set_seed(subject_seed(subject, 100000 + k * 100))
         model.load_state_dict(base_sd)
         if k == 0:
-            acc = evaluate(model, make_loader(eval_df, label2id, use_quat, use_raw, False))
+            eval_loader = make_loader(eval_df, label2id, use_quat, use_raw, False)
+            if DUMP_POSTERIORS_DIR is not None:
+                acc, (t, pr, c) = evaluate(model, eval_loader, return_preds=True)
+                dump_posteriors(DUMP_POSTERIORS_DIR, subject, prior, k, t, pr, c)
+            else:
+                acc = evaluate(model, eval_loader)
         else:
             calib_df = df[df["file"].isin(sp["calib_files"])]
             for p in model.encoder_params(): p.requires_grad = False  # head-only calibrate
@@ -260,6 +285,9 @@ def run_fold(subject, prior, mode, label2id, df):
             for ep in range(1, CALIB_EPOCHS + 1):
                 train_epoch(model, cl, copt, ccrit); acc = evaluate(model, el)
             for p in model.encoder_params(): p.requires_grad = True
+            if DUMP_POSTERIORS_DIR is not None:
+                _, (t, pr, c) = evaluate(model, el, return_preds=True)
+                dump_posteriors(DUMP_POSTERIORS_DIR, subject, prior, k, t, pr, c)
         print(f"  SUMMARY {subject} {mode}/{prior} k={k} acc={acc:.2f}")
         results.append(dict(test_subject=subject, mode=mode, prior=prior, k=k,
                             eval_samples=len(eval_df), final_acc=round(acc, 3)))
@@ -267,7 +295,7 @@ def run_fold(subject, prior, mode, label2id, df):
 
 
 def main():
-    global BASE_SEED, RAW_DIR, RAW_DIM, N_TRAIN_SUBJECTS
+    global BASE_SEED, RAW_DIR, RAW_DIM, N_TRAIN_SUBJECTS, DUMP_POSTERIORS_DIR
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", choices=["dual", "raw", "quat"], required=True)
     ap.add_argument("--priors", default="scratch,supLP120,supMAE,mae")
@@ -282,10 +310,18 @@ def main():
                     help="T5: number of non-held-out subjects to use for base fine-tuning "
                          "(nested, first N of sorted remaining). N=0 => no fine-tune, pretrained "
                          "init straight into calibration. Default None = all 4.")
+    ap.add_argument("--dump-posteriors-dir", default=None,
+                    help="Opt-in: also write per-clip {subject}_{prior}_k{k}.csv posteriors "
+                         "(method,k,true_id,pred_id,conf columns, same schema as "
+                         "scripts/main_experiment/dump_posteriors.py) to this dir at k=1,3's final "
+                         "epoch. No effect on summary.csv or existing behavior when omitted.")
     args = ap.parse_args()
     BASE_SEED = args.seed
     RAW_DIR = Path(args.raw_dir); RAW_DIM = args.raw_dim
     N_TRAIN_SUBJECTS = args.n_train_subjects
+    if args.dump_posteriors_dir is not None:
+        p = Path(args.dump_posteriors_dir)
+        DUMP_POSTERIORS_DIR = p if p.is_absolute() else ROOT / p
     print(f"CONFIG mode={args.mode} seed={BASE_SEED} out_root={args.out_root} raw_dir={RAW_DIR} raw_dim={RAW_DIM} n_train_subjects={N_TRAIN_SUBJECTS}")
     df = load_df()
     label2id = {l: i for i, l in enumerate(sorted(df["label"].unique()))}

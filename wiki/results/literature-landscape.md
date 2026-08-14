@@ -1,10 +1,10 @@
 ---
 type: result
 status: active
-updated: 2026-07-03
+updated: 2026-07-21
 ---
 
-# Literature landscape (Undermind deep-research, 2026-07-03)
+# Literature landscape (Undermind deep-research, 2026-07-03; venue-precedent list re-verified 2026-07-21)
 
 Source: `Undermind - Studies on cross-modal HAR pretraining objectives...(1).pdf` (repo root, 40 pp, free tier — 173 refs). Online: https://app.undermind.ai/report/d4cd1404f846f003d92027229ece442552832214cbb5c7a4965f62d3295a1b89
 
@@ -42,7 +42,31 @@ These prove objective-vs-OOD comparisons matter **within IMU**; nobody extended 
 4. Subject-held-out few-shot + novel-class onboarding ✓ ([[loso-protocol]], [[oov-leave-class-out]]).
 
 ## Venue precedent
-THMS has published SSL-HAR: Guo & Li "Cross-Model Cross-Stream Learning" (THMS 2023, SkeletonBYOL); Rahimi Taghanaki et al. time-frequency contrastive HAR (THMS 2022, 19 cites). Venue is receptive to this paper shape.
+THMS has published SSL-HAR/domain-transfer work close to this paper's shape, none hitting the actual
+gap (skeleton→IMU pretraining-objective comparison + task-reliability controller). Ranked by topical
+closeness, verified against IEEE Xplore 2026-07-21 (two dates below corrected from the original
+2026-07-03 pass, which had the wrong year for both):
+1. **Rahimi Taghanaki, Rainbow & Etemad**, "Self-Supervised Human Activity Recognition With Localized
+   Time-Frequency Contrastive Representation Learning," *THMS* 53(6), Dec 2023, pp. 1027–1037 (was
+   misdated "THMS 2022" — that's the arXiv preprint date, not the journal pub). Closest single match:
+   same journal, same "which pretraining objective helps HAR" question — but pretrains directly on
+   accelerometer data (no skeleton source, no cross-modal gap, no controller).
+2. **Liu, Liu & Guo**, "Cross-Model Cross-Stream Learning for Self-Supervised Human Action
+   Recognition," *THMS* 2024 (arXiv 2307.07791; was misdated "THMS 2023, SkeletonBYOL" — SkeletonBYOL
+   is the paper's internal baseline name, not the paper's own title, and 2023 was the arXiv date).
+   SSL objective comparison on skeleton data (our source modality) — stays skeleton-only, no transfer
+   to a wearable target.
+3. **Zhao, Deng, He & Chen**, "Local Domain Adaptation for Cross-Domain Activity Recognition," *THMS*
+   51(1), 2021 — cluster-to-cluster distribution alignment across sensor domains, closest on the
+   *domain-gap* framing (maps to our MMD²/Frechet evidence) but is an alignment method, not a
+   pretraining-objective comparison, and has no controller/reliability layer.
+4. (older, more distant) **Chiang, Lu & Hsu**, "A Feature-Based Knowledge Transfer Framework for
+   Cross-Environment Activity Recognition Toward Smart Home Applications," *THMS*, 2017 — transfer
+   learning across sensor environments, but ambient/smart-home sensors, not skeleton→wearable.
+
+Venue is receptive to this paper shape; none of the four above combine the pretraining-objective
+comparison with a skeleton→IMU domain gap, which is still where [[literature-landscape]]'s headline
+gap-claim stands.
 
 ## What the report did NOT cover (free tier + query scope)
 - THMS statistical practice at N=5 — still guided only by [[publishability-review]] item 4.

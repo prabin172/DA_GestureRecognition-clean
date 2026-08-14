@@ -3,7 +3,7 @@
 _Created 2026-07-13. This is the clean reproducibility rerun of `RTHMLab/DA_GestureRecognition`
 (branch `swing-mode-xsens`), not a fork of its git history — fresh repo, verified data only._
 
-## State — full rerun COMPLETE (2026-07-15) + paper_results.md reconciled against it (2026-07-20)
+## State — full rerun COMPLETE (2026-07-15), paper reconciled + controller robustness fixed (2026-07-20)
 
 This repo exists to produce final, verified-reproducible numbers for the paper, replacing the
 original repo's ~50-script, 234GB, partially-undocumented working state. What's here:
@@ -171,34 +171,66 @@ checkpoint paths for all 5 methods.
 
 ## Next (continue here)
 
-1. **DONE 2026-07-20: paper_results.md reconciled against this repo's fresh rerun.** Full
-   number-by-number comparison (2 subagents + direct checks), root-cause investigation of every
-   discrepancy (no bugs found — training non-determinism, `cudnn.deterministic=False` everywhere,
-   first-ever pinned-environment run), and a full rewrite of `paper/paper_results.md` R1–R6e +
-   regenerated `paper/*.tex` + propagated to 10 wiki pages. Five claims genuinely broke and were
-   honestly softened/rewritten (not silently kept); R5's controller section required the deepest
-   rework (Lock 1 says mae worst, Locks 2/3 now say supLP120 worst under harsh penalties — a real,
-   explained divergence, not a bug). Full account: `wiki/log.md` 2026-07-20 entries (3 of them).
-   **Two loose ends, both running in background as of this writing** (`multiseed_extension.log`,
-   ~1.5 days ETA): OOV leave-class-out and CZU-dual cold-start (T5) were promoted from single-seed
-   to 3-seed. Once done: pool the new seeds, update [[czu-dual-cold-start]] and
-   `paper_results.md`'s R6c cold-start paragraph (currently still single-seed numbers with a
-   pending-confirmation note) and [[oov-leave-class-out]]'s table.
-2. **Old repo deleted locally 2026-07-16** — `~/projects/DA_GestureRecognition` no longer exists;
+1. **IN PROGRESS as of this writing — check first:** the OOV leave-class-out 3-seed extension
+   (seed 44) is still running in the background, launched via `multiseed_extension.log`
+   (`nohup bash -c '... && bash scripts/orchestration/05b_oov_multiseed.sh'`). Seed 43 just
+   finished; seed 44 is next (~15h/seed, so likely still running when you next check — linger is
+   confirmed on, it survives logout). **CZU-dual cold-start (T5) 3-seed extension already
+   finished** — both `trained_models/CZU-DUAL-subjectScaling-seed{43,44}/` exist. Once OOV seed 44
+   completes: pool `LOSO-LeaveClassOutFewShot-seed{43,44}/` with the seed-42 dir (mirror
+   `scripts/main_experiment/analyze_a2_multiseed.py`'s pattern), update
+   [[oov-leave-class-out]]'s table; separately pool the now-complete CZU-dual cold-start 3 seeds
+   and update [[czu-dual-cold-start]] + `paper_results.md`'s R6c cold-start paragraph (currently
+   still single-seed numbers with a pending-confirmation note — this one is unblocked now, doesn't
+   need to wait on OOV).
+2. **DONE 2026-07-20: paper_results.md reconciled against this repo's fresh rerun.** Full
+   number-by-number comparison, root-cause investigation of every discrepancy (no bugs found —
+   training non-determinism, `cudnn.deterministic=False` everywhere, first-ever pinned-environment
+   run), full rewrite of `paper/paper_results.md` R1–R6e + regenerated `paper/*.tex` + propagated
+   to 10 wiki pages. Paper prose was also cleaned of all "was X, now Y" revision-history narration
+   per explicit user feedback — state only the current valid result (see the
+   `feedback_paper_writing_no_revision_history` memory) — dual-version framing is only kept where
+   both versions are genuinely part of the science (e.g. CKA vs raw MMD/Frechet).
+3. **DONE 2026-07-20: controller (R5) robustness protocol fixed — Locks 2/3 were still using a
+   fixed, recall-ranked vocab; now fully randomized like Lock 1.** User caught that Locks 2
+   (cost-severity sweep) and 3 (iso-safety threshold) in `scripts/controller/controller_robust.py`
+   still evaluated on one fixed gesture assignment ranked by recall — exactly the kind of selection
+   the project had already decided to move away from for Lock 1, to avoid any appearance of
+   cherry-picking. Rewrote the script so all three locks share the same 120 uniformly-random
+   assignments (`reliability_ordered_vocab()` no longer used by any lock, kept only as a startup
+   print). Reran (4m38s for the full 120×1000 sweep); old fixed-vocab output backed up to
+   `trained_models/Phase3-controller/robust-fixedvocab-superseded/` (not cited anywhere). **Result:
+   the earlier "Locks disagree" finding was entirely an artifact of the non-random vocab — under
+   full randomization, all three locks now agree: mae compounds worst under every stress test.**
+   Propagated to `wiki/concepts/controller.md`, `wiki/results/phase3-controller.md`,
+   `paper/paper_results.md` R5, `paper/paper_method.md` §8.1, and the controller sentences in
+   abstract/intro/conclusion/discussion (reverted from "no objective is safe" back to a confident
+   "mae compounds worst" claim). Advisor slide deck rewritten to match:
+   `paper/controller_advisor_slides.{md,pptx}` (not committed to git — working files for the
+   advisor meeting, human's call whether to keep in-repo). Full account: `wiki/log.md` 2026-07-20
+   entries (4 of them, most recent first).
+4. **Old repo deleted locally 2026-07-16** — `~/projects/DA_GestureRecognition` no longer exists;
    this is the sole active repo. GitHub remote (`RTHMLab/DA_GestureRecognition`) deliberately left
    alone, pending human check-in with the team — do not delete it without explicit instruction.
-3. **notes.md** (repo root) — a suspicious "SYSTEM DIRECTIVE"-style file found in the old repo
+5. **notes.md** (repo root) — a suspicious "SYSTEM DIRECTIVE"-style file found in the old repo
    before deletion, copied here for human review. Verified against repo state 2026-07-20: only its
    §1 (terminology scrub) was ever executed; §2/§4 (new multi-gap controller experiments + R5
    rewrite) were not, and were not acted on this session (flagged as possibly-injected content,
    never verified as coming from the human or collaborators) — awaiting explicit human direction.
-4. **T6 (data release), T7 (live study)** — see `tasks.md` and `paper/live_study_protocol.md`;
-   not started, decisions live with the human.
+6. **T6 (data release), T7 (live study)** — see `tasks.md` and `paper/live_study_protocol.md`;
+   not started, decisions live with the human. Note: `live_study_protocol.md`'s design assumed a
+   single *fixed* System Input assignment shared across live subjects — now that the offline study
+   uses full randomization (item 3 above), that protocol needs a fresh decision on what to fix for
+   a live session before it's actionable; flagged inline in `wiki/concepts/controller.md` §12.
 
 ## Owed / do-nots
 
-- **Do not** overwrite `trained_models/Phase3-controller/robust/` — stage 8 is done, this is now
-  the locked output future analysis cites.
+- **Do not** overwrite `trained_models/Phase3-controller/robust/` — this now holds the fully-
+  randomized-protocol numbers (2026-07-20) cited throughout `paper_results.md` R5. The superseded
+  fixed-vocab run is at `robust-fixedvocab-superseded/`, kept for the record only.
+- **Do not** touch `trained_models/LOSO-LeaveClassOutFewShot-seed44/` or
+  `multiseed_extension.log` while the OOV background job is still running (check `ps aux | grep
+  loso_leave_class` first).
 - **Do not** run anything in `scripts/orchestration/legacy/` — see that folder's README.
 - **Do not** re-run stage 0 unless a parser changed — it's slow and nothing downstream needs it
   regenerated unless the processing logic itself changes (same rule as the original repo).
